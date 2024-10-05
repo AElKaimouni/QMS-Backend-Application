@@ -15,7 +15,6 @@ public class SaasProjectApplication {
         System.setProperty("spring.datasource.username", dotenv.get("DB_USERNAME"));
         System.setProperty("spring.datasource.password", dotenv.get("DB_PASSWORD"));
 
-
         SpringApplication.run(SaasProjectApplication.class, args);
 
     }

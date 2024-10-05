@@ -19,7 +19,12 @@ RUN mvn clean package -DskipTests
 # Stage 2: Run the application
 FROM openjdk:21-jdk
 WORKDIR /app
+
 # Copy the built JAR file from the previous stage
 COPY --from=build /app/target/*.jar app.jar
+
+# Copy the .env file into the container's /app directory
+COPY .env .env
+
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]

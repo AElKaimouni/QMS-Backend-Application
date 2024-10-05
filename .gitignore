@@ -1,1 +1,81 @@
+# Ignore Maven and Gradle build directories
+/target/
+/build/
+
+# Ignore IDE directories and files
+/.idea/
+/*.iml
+/.vscode/
+/.project
+/.classpath
+/.settings/
+/*.launch
+/.externalToolBuilders/
+
+# Ignore OS-specific files
+.DS_Store
+Thumbs.db
+
+# Ignore logs and temporary files
+/logs/
+/*.log
+*.log.*
+
+# Ignore configuration files (depending on your setup, you may want to keep or remove these)
+application.properties
+application.yml
+application-*.properties
+application-*.yml
+
+# Ignore compiled Java classes and packaged JARs
+*.class
+*.jar
+*.war
+*.ear
+
+# Ignore dependency directory (if not using a dependency manager like Maven or Gradle)
+lib/
+
+# Ignore test reports and code coverage
+/test-output/
+/surefire-reports/
+/jacoco.exec
+/coverage/
+
+# Ignore local environment variables
 .env
+.env.*
+
+# Ignore IntelliJ IDEA plugin specific files
+/.idea/
+/.idea/workspace.xml
+.idea/libraries/
+/.idea/tasks.xml
+.idea/.name
+.idea/*.iml
+.idea/modules.xml
+
+# Ignore Eclipse project specific files
+/.classpath
+/.project
+/.settings/
+
+# Ignore temporary files
+*.tmp
+*.bak
+*.swp
+
+# Ignore Node.js dependencies (if you use frontend code with npm/yarn)
+node_modules/
+
+# Ignore database files (if applicable)
+*.db
+*.sqlite
+
+# Ignore Docker related files
+docker-compose.override.yml
+docker-compose.debug.yml
+
+# Ignore generated metadata
+/target/.mvn/wrapper/maven-wrapper.jar
+.mvn/
