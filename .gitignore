@@ -44,7 +44,6 @@ lib/
 
 # Ignore local environment variables
 .env
-.env.*
 
 # Ignore IntelliJ IDEA plugin specific files
 /.idea/
