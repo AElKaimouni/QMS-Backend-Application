@@ -1,4 +1,4 @@
-package com.example.saasproject;
+package com.example.qms;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -6,7 +6,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.env.Environment;
 
 @SpringBootTest
-class SaasProjectApplicationTests {
+class QMSApplicationTests {
     @Autowired
     private Environment env;
 
