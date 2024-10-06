@@ -11,7 +11,7 @@ public interface QueueServiceInterface {
             Queue.QueueStatus status
     );
 
-    public void reserve(UUID queueId);
+    public Integer reserve(UUID queueId);
 
     public void next(UUID queueId);
 
@@ -23,7 +23,7 @@ public interface QueueServiceInterface {
 
     public void close(UUID queueId);
 
-    public boolean validateToken();
+    public Integer validateToken(String encryptedTicket, UUID qid);
 
-    public String generateToken();
+    public String generateToken(int position, UUID qid);
 }
