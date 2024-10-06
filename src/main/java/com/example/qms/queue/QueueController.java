@@ -1,6 +1,6 @@
 package com.example.qms.queue;
 
-import com.example.qms.queue.dto.CreateQueueRequest;
+import com.example.qms.queue.dto.CreateQueueDto;
 import com.example.qms.queue.services.QueueService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
 
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -17,7 +18,6 @@ public class QueueController {
     @Autowired
     private QueueService queueService;
 
-
     @GetMapping("/{qid}/validate/{token}")
     public Integer validateToken(
             @PathVariable("qid") String qid,
@@ -25,18 +25,22 @@ public class QueueController {
     ) {
         // get Queue Secret
         String queueSecret = queueService.getQueueSecret(qid);
-        return queueService.validateToken(token, queueSecret);
+
+        // string to uuid
+        UUID queueId = UUID.fromString(qid);
+
+        return queueService.validateToken(token, queueId);
     }
 
     @GetMapping("/{queueId}")
-    public Queue getQueue(@PathVariable UUID queueId) {
+    public ResponseEntity<Queue> getQueue(@PathVariable UUID queueId) {
         Queue queue = queueService.getQueue(queueId);
-        return queue;
+        return ResponseEntity.ok(queue);
     }
 
     @PostMapping
     public ResponseEntity<String> createQueue(
-            @Valid @RequestBody CreateQueueRequest request
+            @Valid @RequestBody CreateQueueDto request
     ) {
         String queueId = queueService.createQueue(
                 request.getTitle(),
@@ -47,9 +51,9 @@ public class QueueController {
     }
 
     @PostMapping("/{queueId}/reserve")
-    public ResponseEntity<Void> reserve(@PathVariable UUID queueId) {
-        queueService.reserve(queueId);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<Map<String, String>> reserve(@PathVariable UUID queueId) {
+        var length = queueService.reserve(queueId);
+        return ResponseEntity.ok(Map.of("length", Integer.toString(length)));
     }
 
     @PostMapping("/{queueId}/next")
@@ -82,15 +86,4 @@ public class QueueController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/validate-token")
-    public ResponseEntity<Boolean> validateToken() {
-        boolean isValid = queueService.validateToken();
-        return ResponseEntity.ok(isValid);
-    }
-
-    @PostMapping("/generate-token")
-    public ResponseEntity<String> generateToken() {
-        String token = queueService.generateToken();
-        return ResponseEntity.ok(token);
-    }
 }

@@ -28,22 +28,34 @@ public  class QueueService implements QueueServiceInterface {
     }
 
     // Encrypt the position using AES-128-ECB
-    public String generateToken(int position, String queueSecret) throws Exception {
-        // Ensure the key is exactly 16 bytes (128 bits)
-        SecretKeySpec key = new SecretKeySpec(queueSecret.getBytes(StandardCharsets.UTF_8), 0, 16, "AES");
+    public String generateToken(int position, UUID qid) {
+        var queue = getQueue(qid);
 
-        Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding"); // AES with ECB mode and PKCS5Padding
-        cipher.init(Cipher.ENCRYPT_MODE, key);
+        var queueSecret = queue.getSecret().toString();
+        try {
+            // Ensure the key is exactly 16 bytes (128 bits)
+            SecretKeySpec key = new SecretKeySpec(queueSecret.getBytes(StandardCharsets.UTF_8), 0, 16, "AES");
 
-        String positionString = Integer.toString(position);
-        byte[] encryptedBytes = cipher.doFinal(positionString.getBytes(StandardCharsets.UTF_8));
+            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding"); // AES with ECB mode and PKCS5Padding
+            cipher.init(Cipher.ENCRYPT_MODE, key);
 
-        // Return the encrypted data encoded in Base64 to keep it in a readable format
-        return Base64.getEncoder().encodeToString(encryptedBytes);
+            String positionString = Integer.toString(position);
+            byte[] encryptedBytes = cipher.doFinal(positionString.getBytes(StandardCharsets.UTF_8));
+
+            // Return the encrypted data encoded in Base64 to keep it in a readable format
+            return Base64.getEncoder().encodeToString(encryptedBytes);
+        } catch (Exception e) {
+            // Catch any unexpected exceptions and return null
+            e.printStackTrace();
+            return null;
+        }
     }
 
     // Decrypt the ticket using AES-128-ECB
-    public Integer validateToken(String encryptedTicket, String queueSecret) {
+    public Integer validateToken(String encryptedTicket, UUID qid) {
+        var queue = getQueue(qid);
+
+        var queueSecret = queue.getSecret().toString();
         try {
             // Ensure the key is exactly 16 bytes (128 bits)
             SecretKeySpec key = new SecretKeySpec(queueSecret.getBytes(StandardCharsets.UTF_8), 0, 16, "AES");
@@ -86,7 +98,7 @@ public  class QueueService implements QueueServiceInterface {
         return queue.getId().toString();
     }
 
-    public int reserve(UUID queueId) {
+    public Integer reserve(UUID queueId) {
         // Implementation for reserving a queue
         Queue queue = getQueue(queueId);
         queue.setLength(queue.getLength() + 1);
@@ -129,13 +141,4 @@ public  class QueueService implements QueueServiceInterface {
         queueRepository.save(queue);
     }
 
-    public boolean validateToken() {
-        // Implementation for validating a token
-        return false;
-    }
-
-    public String generateToken() {
-        // Implementation for generating a token
-        return null;
-    }
 }

@@ -21,7 +21,7 @@ public class Queue {
     @Column(nullable = false)
     private String title;
 
-    private int counter = 0;
+    private int counter = 0; // current position of the queue
 
     @Column(nullable = false)
     private int length;
