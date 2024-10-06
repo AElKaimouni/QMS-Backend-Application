@@ -2,6 +2,7 @@ package com.example.qms.queue;
 
 import com.example.qms.queue.dto.CreateQueueRequest;
 import com.example.qms.queue.services.QueueService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,13 +11,21 @@ import jakarta.validation.Valid;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/queues")
+@RequestMapping("/queue")
 public class QueueController {
 
-    private final QueueService queueService;
+    @Autowired
+    private QueueService queueService;
 
-    public QueueController(QueueService queueService) {
-        this.queueService = queueService;
+    @GetMapping("/{qid}/validate/{token}")
+    public Integer validateToken(
+            @PathVariable("qid") String qid,
+            @PathVariable("token") String token
+    ) {
+        // get Queue Secret
+        String queueSecret = queueService.getQueueSecret(qid);
+
+        return queueService.validateToken(token, queueSecret);
     }
 
     @GetMapping("/{queueId}")
