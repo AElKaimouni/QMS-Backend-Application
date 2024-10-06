@@ -9,16 +9,20 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 
 @RestController
+@RequestMapping("/queue")
 public class QueueController {
 
     @Autowired
     private QueueService queueService;
 
-    // Endpoint to create a Queue using QueueDTO
-    @PostMapping("/create")
-    public ResponseEntity<Queue> createQueue(@Valid @RequestBody CreateQueueDto queueDTO) {
-        Queue queue = queueService.createQueue(queueDTO);
+    @GetMapping("/{qid}/validate/{token}")
+    public Integer validateToken(
+            @PathVariable("qid") String qid,
+            @PathVariable("token") String token
+    ) {
+        // get Queue Secret
+        String queueSecret = queueService.getQueueSecret(qid);
 
-        return ResponseEntity.ok(queue);
+        return queueService.validateToken(token, queueSecret);
     }
 }
