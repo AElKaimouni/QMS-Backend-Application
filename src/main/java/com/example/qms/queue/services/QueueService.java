@@ -2,7 +2,6 @@ package com.example.qms.queue.services;
 
 import com.example.qms.queue.Queue;
 import com.example.qms.queue.QueueRepository;
-import com.example.qms.queue.dto.CreateQueueRequest;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.BadPaddingException;
@@ -16,7 +15,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
-public class QueueService {
+public class QueueService implements QueueServiceInterface {
 
     private final QueueRepository queueRepository;
 
@@ -87,11 +86,12 @@ public class QueueService {
         return queue.getId().toString();
     }
 
-    public void reserve(UUID queueId) {
+    public int reserve(UUID queueId) {
         // Implementation for reserving a queue
         Queue queue = getQueue(queueId);
         queue.setLength(queue.getLength() + 1);
         queueRepository.save(queue);
+        return queue.getLength();
     }
 
     public void next(UUID queueId) {
