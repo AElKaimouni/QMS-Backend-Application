@@ -48,7 +48,7 @@ public class ReservationService {
 
     public ReservationDTO createReservation(CreateReservationDTO createReservationDTO) {
         // Get the next available position from the queue system
-        int queuePosition = queueService.getNextPosition();
+        int queuePosition = queueService.reserve();
         // Get the token from the queue service
         String token = queueService.generateToken();
 

@@ -65,8 +65,4 @@ public class ReservationController {
         // Retourner un statut 204 (No Content) si la suppression a réussi
         return ResponseEntity.noContent().build();
     }
-
-
-
-
 }

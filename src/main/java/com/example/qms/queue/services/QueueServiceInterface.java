@@ -1,11 +1,7 @@
 package com.example.qms.queue.services;
 
 public interface QueueServiceInterface {
-    public default String get(){
-        return null;
-    };
-
-    public default int getNextPosition() {
+    public default int reserve() {
         return 0;
     }
 
