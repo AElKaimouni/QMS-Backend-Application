@@ -20,9 +20,21 @@ public class Reservation {
     private String token;
     private Integer position;
     private String email;
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private ReservationStatus status = ReservationStatus.PENDING;
     private Timestamp joinAt;
 
+
+
+    public enum ReservationStatus{
+        PENDING,
+        CONFIRMED,    // Reservation has been confirmed
+        CANCELED,     // Reservation has been canceled
+        WAITING,      // Waiting for a spot or further processing
+        COMPLETED,    // Reservation process has been completed
+        EXPIRED,      // Reservation was not used or expired
+        NO_SHOW,      // Reserved, but the user did not show up
+    }
     @ManyToOne
     @JoinColumn(name = "queue_id", nullable = false)
     private Queue queue;

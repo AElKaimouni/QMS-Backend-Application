@@ -34,10 +34,10 @@ public class ReservationController {
         ReservationDTO reservation = reservationService.getReservationById(id);
         return ResponseEntity.ok(reservation);
     }
-    // Get all reservations
-    @GetMapping
-    public ResponseEntity<List<ReservationDTO>> getAllReservations() {
-        List<ReservationDTO> reservations = reservationService.getAllReservations();
+    // Get all reservations for a queue
+    @GetMapping("/queue/{queueId}")
+    public ResponseEntity<List<ReservationDTO>> getAllReservationsByQueueId(@PathVariable UUID queueId) {
+        List<ReservationDTO> reservations = reservationService.getAllReservationsForQueue(queueId);
         return ResponseEntity.ok(reservations);
     }
 

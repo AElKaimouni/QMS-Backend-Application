@@ -17,6 +17,7 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -51,7 +52,7 @@ public class ReservationService {
         // Get the next available position from the queue system
         int queuePosition = queueService.reserve(createReservationDTO.getQueueId());
         // Get the token from the queue service
-        String token = queueService.generateToken();
+        String token = queueService.generateToken(queuePosition,createReservationDTO.getQueueId());
 
         Queue queue = queueRepository.findById(createReservationDTO.getQueueId())
                 .orElseThrow(() -> new EntityNotFoundException("Queue not found"));
@@ -62,7 +63,6 @@ public class ReservationService {
         reservation.setPosition(queuePosition);  // Assign position from queue service
         reservation.setEmail(createReservationDTO.getEmail());
         reservation.setQueue(queue); // Set the queue
-        reservation.setStatus("PENDING");
         reservation.setJoinAt(Timestamp.valueOf(LocalDateTime.now())); // Définir la date/heure actuelle
 
         // Save the reservation to the database
@@ -78,8 +78,10 @@ public class ReservationService {
     }
 
     // Read all reservations
-    public List<ReservationDTO> getAllReservations() {
-        List<Reservation> reservations = reservationRepository.findAll();
+    public List<ReservationDTO> getAllReservationsForQueue(UUID queueId) {
+    // Fetch all reservations for the queue by its ID
+        Optional<Queue> queue = queueRepository.findById(queueId);
+        List<Reservation> reservations = reservationRepository.findAllByQueue(queue);
         return reservations.stream().map(this::mapToDTO).collect(Collectors.toList());
     }
     // Get all reservations for the day
