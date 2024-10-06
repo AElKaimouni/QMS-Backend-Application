@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
-public class QueueService implements QueueServiceInterface {
+public  class QueueService implements QueueServiceInterface {
 
     private final QueueRepository queueRepository;
 
