@@ -2,6 +2,7 @@ package com.example.qms.reservation.services;
 
 import com.example.qms.queue.Queue;
 import com.example.qms.queue.QueueRepository;
+import com.example.qms.queue.services.QueueService;
 import com.example.qms.queue.services.QueueServiceInterface;
 import com.example.qms.reservation.Reservation;
 import com.example.qms.reservation.ReservationRepository;
@@ -24,7 +25,7 @@ public class ReservationService {
     @Autowired
     ReservationRepository reservationRepository;
     @Autowired
-    QueueServiceInterface queueService;
+    QueueService queueService;
     @Autowired
     QueueRepository queueRepository;
 
@@ -48,7 +49,7 @@ public class ReservationService {
 
     public ReservationDTO createReservation(CreateReservationDTO createReservationDTO) {
         // Get the next available position from the queue system
-        int queuePosition = queueService.reserve();
+        int queuePosition = queueService.reserve(createReservationDTO.getQueueId());
         // Get the token from the queue service
         String token = queueService.generateToken();
 

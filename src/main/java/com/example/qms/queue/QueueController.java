@@ -29,8 +29,9 @@ public class QueueController {
     }
 
     @GetMapping("/{queueId}")
-    public ResponseEntity<Queue> getQueue(@PathVariable UUID queueId) {
+    public Queue getQueue(@PathVariable UUID queueId) {
         Queue queue = queueService.getQueue(queueId);
+        return queue;
     }
 
     @PostMapping
