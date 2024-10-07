@@ -16,9 +16,7 @@ import java.util.UUID;
 @Entity
 public class Reservation {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-
+    private UUID id = UUID.randomUUID();  // Manually generate UUID
     private String token;
     private Integer position;
     private String email;
