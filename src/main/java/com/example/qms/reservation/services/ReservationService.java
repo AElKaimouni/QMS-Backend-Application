@@ -6,8 +6,11 @@ import com.example.qms.queue.services.QueueService;
 import com.example.qms.queue.services.QueueServiceInterface;
 import com.example.qms.reservation.Reservation;
 import com.example.qms.reservation.ReservationRepository;
+import com.example.qms.reservation.dto.ConsultReservationStateDTO;
 import com.example.qms.reservation.dto.CreateReservationDTO;
 import com.example.qms.reservation.dto.ReservationDTO;
+import com.example.qms.reservation.dto.ReservationInfoDTO;
+import com.example.qms.reservation.exceptions.ResrvationNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
@@ -71,7 +74,7 @@ public class ReservationService {
     }
 
     // Read a single reservation by ID
-    public ReservationDTO getReservationById(UUID id) {
+    public ReservationDTO getReservationById(int id) {
         Reservation reservation = reservationRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Reservation not found with id: " + id));
         return mapToDTO(reservation);
@@ -103,9 +106,26 @@ public class ReservationService {
     }
 
     // Delete reservation
-    public void deleteReservation(UUID id) {
+    public void deleteReservation(int id) {
         Reservation reservation = reservationRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Reservation not found with id: " + id));
         reservationRepository.delete(reservation);
+    }
+
+    public ReservationInfoDTO consultReservation(ConsultReservationStateDTO consultReservationDTO) throws ResrvationNotFoundException {
+        // Fetch the Reservation instance using its ID
+        Optional<Reservation> reservation = reservationRepository.findById(consultReservationDTO.getReservationID());
+
+        if(reservation.isEmpty()) throw new ResrvationNotFoundException();
+
+        // Fetch the Queue instance using the queueId from the Reservation
+        Queue queue = reservation.get().getQueue();
+
+        // Create and return the new DTO with the necessary properties
+        return new ReservationInfoDTO(
+                reservation.get().getPosition(),
+                queue.getLength(),
+                queue.getCounter()
+        );
     }
 }
