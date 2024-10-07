@@ -2,6 +2,7 @@ package com.example.qms.queue.services;
 
 import com.example.qms.queue.Queue;
 import com.example.qms.queue.QueueRepository;
+import com.example.qms.queue.exceptions.QueueNotFoundException;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.BadPaddingException;
@@ -12,6 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -28,10 +30,10 @@ public  class QueueService implements QueueServiceInterface {
     }
 
     // Encrypt the position using AES-128-ECB
-    public String generateToken(int position, UUID qid) {
-        var queue = getQueue(qid);
+    public String generateToken(int position, UUID qid) throws QueueNotFoundException {
+        Queue queue = getMustExistQueue(qid);
 
-        var queueSecret = queue.getSecret().toString();
+        String queueSecret = queue.getSecret().toString();
         try {
             // Ensure the key is exactly 16 bytes (128 bits)
             SecretKeySpec key = new SecretKeySpec(queueSecret.getBytes(StandardCharsets.UTF_8), 0, 16, "AES");
@@ -53,9 +55,11 @@ public  class QueueService implements QueueServiceInterface {
 
     // Decrypt the ticket using AES-128-ECB
     public Integer validateToken(String encryptedTicket, UUID qid) {
-        var queue = getQueue(qid);
+        Optional<Queue> queue = getQueue(qid);
 
-        var queueSecret = queue.getSecret().toString();
+        if (queue.isEmpty()) return 0;
+
+        String queueSecret = queue.get().getSecret().toString();
         try {
             // Ensure the key is exactly 16 bytes (128 bits)
             SecretKeySpec key = new SecretKeySpec(queueSecret.getBytes(StandardCharsets.UTF_8), 0, 16, "AES");
@@ -79,10 +83,18 @@ public  class QueueService implements QueueServiceInterface {
         }
     }
 
-    public Queue getQueue(UUID queueId) {
+    public Optional<Queue> getQueue(UUID queueId) {
         // Implementation for getting a queue
-        return queueRepository.findById(queueId)
-                .orElseThrow(() -> new IllegalStateException("Queue not found"));
+        return queueRepository.findById(queueId);
+    }
+
+    public Queue getMustExistQueue(UUID queueId) throws QueueNotFoundException {
+        // Implementation for getting a queue
+        Optional<Queue> queue = this.getQueue(queueId);
+
+        if(queue.isEmpty()) throw  new QueueNotFoundException();
+
+        return  queue.get();
     }
 
     public String createQueue(
@@ -98,45 +110,45 @@ public  class QueueService implements QueueServiceInterface {
         return queue.getId().toString();
     }
 
-    public Integer reserve(UUID queueId) {
+    public Integer reserve(UUID queueId) throws QueueNotFoundException {
         // Implementation for reserving a queue
-        Queue queue = getQueue(queueId);
+        Queue queue = getMustExistQueue(queueId);
         queue.setLength(queue.getLength() + 1);
         queueRepository.save(queue);
         return queue.getLength();
     }
 
-    public void next(UUID queueId) {
+    public void next(UUID queueId) throws QueueNotFoundException {
         // Implementation for moving to the next queue
-        Queue queue = getQueue(queueId);
+        Queue queue = getMustExistQueue(queueId);
         queue.setCounter(queue.getCounter() + 1);
         queueRepository.save(queue);
     }
 
-    public void delete(UUID queueId) {
+    public void delete(UUID queueId) throws QueueNotFoundException  {
         // Implementation for deleting a queue
-        Queue queue = getQueue(queueId);
+        Queue queue = getMustExistQueue(queueId);
         queue.setStatus(Queue.QueueStatus.DELETED);
         queueRepository.save(queue);
     }
 
-    public void start(UUID queueId) {
+    public void start(UUID queueId) throws QueueNotFoundException {
         // Implementation for starting a queue
-        Queue queue = getQueue(queueId);
+        Queue queue = getMustExistQueue(queueId);
         queue.setStatus(Queue.QueueStatus.ACTIVE);
         queueRepository.save(queue);
     }
 
-    public void paused(UUID queueId) {
+    public void paused(UUID queueId) throws QueueNotFoundException {
         // Implementation for stopping a queue
-        Queue queue = getQueue(queueId);
+        Queue queue = getMustExistQueue(queueId);
         queue.setStatus(Queue.QueueStatus.PAUSED);
         queueRepository.save(queue);
     }
 
-    public void close(UUID queueId) {
+    public void close(UUID queueId) throws QueueNotFoundException {
         // Implementation for closing a queue
-        Queue queue = getQueue(queueId);
+        Queue queue = getMustExistQueue(queueId);
         queue.setStatus(Queue.QueueStatus.CLOSED);
         queueRepository.save(queue);
     }

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -33,8 +34,9 @@ public class QueueController {
     }
 
     @GetMapping("/{queueId}")
-    public ResponseEntity<Queue> getQueue(@PathVariable UUID queueId) {
-        Queue queue = queueService.getQueue(queueId);
+    public ResponseEntity<Optional<Queue>> getQueue(@PathVariable UUID queueId) {
+        Optional<Queue> queue = queueService.getQueue(queueId);
+
         return ResponseEntity.ok(queue);
     }
 
