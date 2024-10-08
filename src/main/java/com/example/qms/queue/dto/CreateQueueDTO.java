@@ -4,9 +4,9 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
-public class CreateQueueDto {
+public class CreateQueueDTO {
     @NotBlank(message = "Title is required")
     private String title;
-
+    private String description = "";
     private int length = 0;
 }

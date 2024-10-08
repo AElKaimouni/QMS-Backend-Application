@@ -31,32 +31,18 @@ public class ReservationController {
         // Return the created reservation as a response
         return ResponseEntity.ok(createdReservation);
     }
+
     // Get a single reservation by ID
     @GetMapping("/{id}")
     public ResponseEntity<ReservationDTO> getReservationById(@PathVariable int id) {
         ReservationDTO reservation = reservationService.getReservationById(id);
         return ResponseEntity.ok(reservation);
     }
+
     // Get all reservations for a queue
     @GetMapping("/queue/{queueId}")
     public ResponseEntity<List<ReservationDTO>> getAllReservationsByQueueId(@PathVariable UUID queueId) {
         List<ReservationDTO> reservations = reservationService.getAllReservationsForQueue(queueId);
-        return ResponseEntity.ok(reservations);
-    }
-
-    // Get reservations for a specific day (YYYY-MM-DD)
-    @GetMapping("/day/{date}")
-    public ResponseEntity<List<ReservationDTO>> getReservationsForDay(@PathVariable String date) {
-        LocalDate parsedDate = LocalDate.parse(date);  // Example: "2024-10-06"
-        List<ReservationDTO> reservations = reservationService.getReservationsForDay(parsedDate.atStartOfDay());
-        return ResponseEntity.ok(reservations);
-    }
-    // Get reservations for a specific hour (YYYY-MM-DDTHH format)
-    @GetMapping("/hour/{date}/{hour}")
-    public ResponseEntity<List<ReservationDTO>> getReservationsForHour(@PathVariable String date, @PathVariable String hour) {
-        LocalDate parsedDate = LocalDate.parse(date);  // Example: "2024-10-06"
-        LocalTime parsedTime = LocalTime.parse(hour + ":00:00");  // Example: "14" -> "14:00:00"
-        List<ReservationDTO> reservations = reservationService.getReservationsForHour(parsedDate.atTime(parsedTime));
         return ResponseEntity.ok(reservations);
     }
 

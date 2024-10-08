@@ -1,12 +1,15 @@
 package com.example.qms.queue;
 
-import com.example.qms.queue.dto.CreateQueueDto;
+import com.example.qms.queue.dto.CreateQueueDTO;
+import com.example.qms.queue.dto.QueueConsultationInfoDTO;
 import com.example.qms.queue.services.QueueService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Map;
 import java.util.Optional;
@@ -34,28 +37,31 @@ public class QueueController {
     }
 
     @GetMapping("/{queueId}")
-    public ResponseEntity<Optional<Queue>> getQueue(@PathVariable UUID queueId) {
+    public ResponseEntity<Queue> getQueue(@PathVariable UUID queueId) {
         Optional<Queue> queue = queueService.getQueue(queueId);
 
-        return ResponseEntity.ok(queue);
+        if(queue.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+
+        return ResponseEntity.ok(queue.get());
+    }
+
+    @GetMapping("/{queueId}/consult")
+    public ResponseEntity<QueueConsultationInfoDTO> consultQueue(@PathVariable UUID queueId) {
+        Optional<Queue> queue = queueService.getQueue(queueId);
+
+        if(queue.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+
+        QueueConsultationInfoDTO res = new QueueConsultationInfoDTO(queue.get());
+
+        return ResponseEntity.ok(res);
     }
 
     @PostMapping
     public ResponseEntity<String> createQueue(
-            @Valid @RequestBody CreateQueueDto request
+            @Valid @RequestBody CreateQueueDTO dto
     ) {
-        String queueId = queueService.createQueue(
-                request.getTitle(),
-                request.getLength(),
-                Queue.QueueStatus.CREATED
-        );
+        String queueId = queueService.createQueue(dto);
         return ResponseEntity.ok(queueId);
-    }
-
-    @PostMapping("/{queueId}/reserve")
-    public ResponseEntity<Map<String, String>> reserve(@PathVariable UUID queueId) {
-        var length = queueService.reserve(queueId);
-        return ResponseEntity.ok(Map.of("length", Integer.toString(length)));
     }
 
     @PostMapping("/{queueId}/next")

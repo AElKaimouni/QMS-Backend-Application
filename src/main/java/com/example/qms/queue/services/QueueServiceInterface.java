@@ -1,15 +1,12 @@
 package com.example.qms.queue.services;
 
 import com.example.qms.queue.Queue;
+import com.example.qms.queue.dto.CreateQueueDTO;
 
 import java.util.UUID;
 
 public interface QueueServiceInterface {
-    public String createQueue(
-            String title,
-            int length,
-            Queue.QueueStatus status
-    );
+    public String createQueue(CreateQueueDTO dto);
 
     public Integer reserve(UUID queueId);
 

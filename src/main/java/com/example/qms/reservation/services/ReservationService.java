@@ -82,27 +82,10 @@ public class ReservationService {
 
     // Read all reservations
     public List<ReservationDTO> getAllReservationsForQueue(UUID queueId) {
-    // Fetch all reservations for the queue by its ID
+        // Fetch all reservations for the queue by its ID
         Optional<Queue> queue = queueRepository.findById(queueId);
         List<Reservation> reservations = reservationRepository.findAllByQueue(queue);
         return reservations.stream().map(this::mapToDTO).collect(Collectors.toList());
-    }
-    // Get all reservations for the day
-    public List<ReservationDTO> getReservationsForDay(LocalDateTime date) {
-        LocalDateTime endOfDay = date.plusDays(1).minusNanos(1); // get the end of the day
-        List<Reservation> reservations = reservationRepository.findAllByJoinAtBetween(Timestamp.valueOf(date), Timestamp.valueOf(endOfDay));
-        return reservations.stream()
-                .map(this::mapToDTO) // Ensure proper mapping to DTO
-                .collect(Collectors.toList());
-    }
-
-    // Get all reservations for a specific hour
-    public List<ReservationDTO> getReservationsForHour(LocalDateTime hour) {
-        LocalDateTime startOfHour = hour.withMinute(0).withSecond(0).withNano(0);
-        LocalDateTime endOfHour = hour.withMinute(59).withSecond(59).withNano(999999999);
-        List<Reservation> reservations = reservationRepository.findAllByJoinAtBetween(Timestamp.valueOf(startOfHour), Timestamp.valueOf(endOfHour));
-        return reservations.stream().map(this::mapToDTO) // Ensure proper mapping to DTO
-                                    .collect(Collectors.toList());
     }
 
     // Delete reservation

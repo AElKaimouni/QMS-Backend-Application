@@ -2,6 +2,7 @@ package com.example.qms.queue.services;
 
 import com.example.qms.queue.Queue;
 import com.example.qms.queue.QueueRepository;
+import com.example.qms.queue.dto.CreateQueueDTO;
 import com.example.qms.queue.exceptions.QueueNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -97,13 +98,12 @@ public  class QueueService implements QueueServiceInterface {
         return  queue.get();
     }
 
-    public String createQueue(
-            String title,
-            int length,
-            Queue.QueueStatus status
-    ) {
+    public String createQueue(CreateQueueDTO dto) {
         // Implementation for creating a queue
-        Queue queue = new Queue(title, length, status);
+        Queue queue = new Queue(
+                dto.getTitle(),
+                dto.getDescription()
+        );
         queue.setSecret(UUID.randomUUID());
         queue.setCreatedAt(LocalDateTime.now());
         queueRepository.save(queue);

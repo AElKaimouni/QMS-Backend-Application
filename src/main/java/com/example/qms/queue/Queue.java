@@ -1,11 +1,13 @@
 package com.example.qms.queue;
 
+import com.example.qms.queue.dto.QueueConsultationInfoDTO;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Data
 @Entity
@@ -16,10 +18,14 @@ public class Queue {
     private UUID id;
 
     @Column(nullable = false)
+    @JsonIgnore
     private UUID secret;
 
     @Column(nullable = false)
     private String title;
+
+    @Column(nullable = false)
+    private String description;
 
     private int counter = 0; // current position of the queue
 
@@ -45,10 +51,10 @@ public class Queue {
     private LocalDateTime updatedAt;
 
 
-    public Queue(String title, int length, QueueStatus status) {
+    public Queue(String title, String description) {
         this.title = title;
-        this.length = length;
-        this.status = status;
+        this.description = description;
+        this.length = 0;
+        this.status = QueueStatus.CREATED;
     }
-
 }
