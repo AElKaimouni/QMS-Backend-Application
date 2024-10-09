@@ -10,7 +10,7 @@ public interface QueueServiceInterface {
 
     public Integer reserve(UUID queueId);
 
-    public void next(UUID queueId);
+    public Queue next(UUID queueId);
 
     public void delete(UUID queueId);
 

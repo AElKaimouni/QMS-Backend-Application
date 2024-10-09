@@ -3,7 +3,10 @@ package com.example.qms.queue.services;
 import com.example.qms.queue.Queue;
 import com.example.qms.queue.QueueRepository;
 import com.example.qms.queue.dto.CreateQueueDTO;
+import com.example.qms.queue.exceptions.QueueCounterLimitException;
 import com.example.qms.queue.exceptions.QueueNotFoundException;
+import com.example.qms.reservation.services.ReservationService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.BadPaddingException;
@@ -19,6 +22,8 @@ import java.util.UUID;
 
 @Service
 public  class QueueService implements QueueServiceInterface {
+    @Autowired
+    ReservationService reservationService;
 
     private final QueueRepository queueRepository;
 
@@ -118,11 +123,16 @@ public  class QueueService implements QueueServiceInterface {
         return queue.getLength();
     }
 
-    public void next(UUID queueId) throws QueueNotFoundException {
+    public Queue next(UUID queueId) throws QueueNotFoundException, QueueCounterLimitException {
         // Implementation for moving to the next queue
         Queue queue = getMustExistQueue(queueId);
-        queue.setCounter(queue.getCounter() + 1);
-        queueRepository.save(queue);
+
+        if(queue.getCounter() < queue.getLength()) {
+            queue.setCounter(queue.getCounter() + 1);
+            queueRepository.save(queue);
+        } else throw new QueueCounterLimitException(queue);
+
+        return queue;
     }
 
     public void delete(UUID queueId) throws QueueNotFoundException  {
@@ -153,4 +163,7 @@ public  class QueueService implements QueueServiceInterface {
         queueRepository.save(queue);
     }
 
+    public double getAverageServingTime(UUID qid) {
+        return  queueRepository.findAverageServingTimeForQueue(qid);
+    }
 }
