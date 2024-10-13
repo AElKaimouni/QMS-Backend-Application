@@ -5,16 +5,17 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
 public interface QueueRepository extends JpaRepository<Queue, UUID> {
     @Query(value =
-        "SELECT AVG(EXTRACT(EPOCH FROM (r.served_at - r.join_at))) " +
+        "SELECT AVG(EXTRACT(EPOCH FROM (r.served_at - r.called_at))) " +
         "FROM Reservation r " +
         "WHERE r.queue_id = :queueId " +
         "AND r.status = 'SERVED' " +
         "AND DATE(r.join_at) = CURRENT_DATE",
     nativeQuery = true)
-    Double findAverageServingTimeForQueue(@Param("queueId") UUID queueId);
+    Optional<Double> findAverageServingTimeForQueue(@Param("queueId") UUID queueId);
 }

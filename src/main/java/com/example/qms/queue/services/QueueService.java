@@ -163,7 +163,7 @@ public  class QueueService implements QueueServiceInterface {
         queueRepository.save(queue);
     }
 
-    public double getAverageServingTime(UUID qid) {
-        return  queueRepository.findAverageServingTimeForQueue(qid);
+    public Optional<Double> getAverageServingTime(UUID qid) {
+        return queueRepository.findAverageServingTimeForQueue(qid);
     }
 }

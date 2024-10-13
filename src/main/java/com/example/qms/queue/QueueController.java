@@ -15,10 +15,10 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
 import org.springframework.web.server.ResponseStatusException;
+import com.example.qms.utils.EmailService;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -28,6 +28,9 @@ public class QueueController {
 
     @Autowired
     private QueueService queueService;
+
+    @Autowired
+    private EmailService emailService;
 
     @Autowired
     private ReservationService reservationService;
@@ -61,7 +64,7 @@ public class QueueController {
 
         if(queue.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
 
-        double averageServTime = queueService.getAverageServingTime(queueId);
+        Optional<Double> averageServTime = queueService.getAverageServingTime(queueId);
         QueueConsultationInfoDTO res = new QueueConsultationInfoDTO(queue.get(), averageServTime);
 
         return ResponseEntity.ok(res);
@@ -77,8 +80,7 @@ public class QueueController {
 
     @PostMapping("/{queueId}/next")
     public ResponseEntity<Void> next(@PathVariable UUID queueId) {
-        Queue queue;
-        int newPosition;
+        Queue queue; int newPosition;
         try {
             queue = queueService.next(queueId);
             newPosition = queue.getCounter();
@@ -86,6 +88,7 @@ public class QueueController {
 
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         } catch (QueueCounterLimitException e) {
+
             queue = e.queue;
             newPosition = queue.getCounter() + 1;
         }
@@ -105,6 +108,11 @@ public class QueueController {
             if(queueLength >= newPosition) {
                 Reservation nextReservation = reservationService.getReservation(queueId, newPosition);
                 nextReservation.setStatus(Reservation.ReservationStatus.SERVING);
+                nextReservation.setCalledAt(Timestamp.valueOf(LocalDateTime.now()));
+
+                // send notification mail
+                this.emailService.sendReservationArrivedEmail(nextReservation.getEmail(), "client name");
+
                 reservationService.saveReservation(nextReservation);
             }
         } catch (ReservationNotFoundException e) {

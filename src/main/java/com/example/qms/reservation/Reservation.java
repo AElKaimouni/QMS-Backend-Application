@@ -19,14 +19,18 @@ public class Reservation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private UUID queueId;
-    private String token;
     private Integer position;
+    private String token;
     private String email;
+
     @Enumerated(EnumType.STRING)
     private ReservationStatus status = ReservationStatus.WAITING;
+
     @Column(nullable = false)
     private Timestamp joinAt;
+    private Timestamp calledAt;
     private Timestamp servedAt;
 
     public enum ReservationStatus{

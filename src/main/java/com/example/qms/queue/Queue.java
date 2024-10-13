@@ -1,6 +1,7 @@
 package com.example.qms.queue;
 
-import com.example.qms.queue.dto.QueueConsultationInfoDTO;
+import com.example.qms.queue.config.QueueConfig;
+import com.example.qms.queue.config.QueueConfigAttributeConverter;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -27,6 +28,7 @@ public class Queue {
     @Column(nullable = false)
     private String description;
 
+    @Column(nullable = false)
     private int counter = 0; // current position of the queue
 
     @Column(nullable = false)
@@ -42,7 +44,7 @@ public class Queue {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private QueueStatus status;
+    private QueueStatus status = QueueStatus.CREATED;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
@@ -50,11 +52,18 @@ public class Queue {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Convert(converter = QueueConfigAttributeConverter.class)
+    @Column(name = "config", columnDefinition = "jsonb", length = 500)
+    private QueueConfig config;
+
 
     public Queue(String title, String description) {
         this.title = title;
         this.description = description;
         this.length = 0;
-        this.status = QueueStatus.CREATED;
+
+        QueueConfig config = new QueueConfig(1);
+
+        this.setConfig(config);
     }
 }

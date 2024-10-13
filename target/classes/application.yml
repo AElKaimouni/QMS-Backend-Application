@@ -3,12 +3,18 @@ spring:
     name: SaasProject
   datasource:
     driverClassName: org.postgresql.Driver
+    hikari:
+      data-source-properties:
+        stringtype=unspecified
   jpa:
     hibernate:
       ddl-auto: update
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+  mail:
+    properties.mail.smtp.auth: true
+    properties.mail.smtp.starttls.enable: true
 
 logging:
   level:

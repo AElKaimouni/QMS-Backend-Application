@@ -24,6 +24,7 @@ public class ReservationDTO extends Reservation {
         this.setEmail(reservation.getEmail());
         this.setToken(reservation.getToken());
         this.setJoinAt(reservation.getJoinAt());
+        this.setCalledAt(reservation.getCalledAt());
         this.setServedAt(reservation.getServedAt());
     }
 }
