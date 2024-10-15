@@ -24,14 +24,14 @@ public class JwtTokenProvider {
         Date currentDate = new Date();
         Date expireDate = new Date(currentDate.getTime() + jwtExpirationDate);
 
-        String token = Jwts.builder()
+        System.out.println(key());
+
+        return Jwts.builder()
                 .subject(username)
                 .issuedAt(new Date())
                 .expiration(expireDate)
-                .signWith(key(), SignatureAlgorithm.HS256)
+                .signWith(key())
                 .compact();
-
-        return token;
     }
 
     private Key key(){
@@ -51,6 +51,9 @@ public class JwtTokenProvider {
 
     // validate JWT token
     public boolean validateToken(String token){
+        System.out.println(token);
+        System.out.println(key());
+        System.out.println((SecretKey) key());
         Jwts.parser()
                 .verifyWith((SecretKey) key())
                 .build()
