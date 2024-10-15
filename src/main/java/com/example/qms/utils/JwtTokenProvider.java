@@ -24,8 +24,6 @@ public class JwtTokenProvider {
         Date currentDate = new Date();
         Date expireDate = new Date(currentDate.getTime() + jwtExpirationDate);
 
-        System.out.println(key());
-
         return Jwts.builder()
                 .subject(username)
                 .issuedAt(new Date())
@@ -51,9 +49,6 @@ public class JwtTokenProvider {
 
     // validate JWT token
     public boolean validateToken(String token){
-        System.out.println(token);
-        System.out.println(key());
-        System.out.println((SecretKey) key());
         Jwts.parser()
                 .verifyWith((SecretKey) key())
                 .build()
