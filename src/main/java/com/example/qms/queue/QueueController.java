@@ -41,8 +41,10 @@ public class QueueController {
 
     @GetMapping("/all")
     public List<Queue> getAllQueues() {
-        int user_id = 5;
-        return queueService.getQueues(user_id);
+        // In your code (for example, in a controller):
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long userId = userDetails.getId();  // Now you can access the user ID
+        return queueService.getQueues(userId);
     }
 
     @GetMapping("/{qid}/validate/{token}")
@@ -84,11 +86,9 @@ public class QueueController {
     public ResponseEntity<String> createQueue(
             @Valid @RequestBody CreateQueueDTO dto
     ) {
-        String queueId = queueService.createQueue(dto);
-        // In your code (for example, in a controller):
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Long userId = userDetails.getId();  // Now you can access the user ID
-        System.out.println("Authenticated user ID: " + userId);
+        Long userId = userDetails.getId();
+        String queueId = queueService.createQueue(dto,userId);
         return ResponseEntity.ok(queueId);
     }
 
