@@ -5,6 +5,7 @@ import com.example.qms.queue.QueueRepository;
 import com.example.qms.queue.dto.CreateQueueDTO;
 import com.example.qms.queue.exceptions.QueueCounterLimitException;
 import com.example.qms.queue.exceptions.QueueNotFoundException;
+import com.example.qms.reservation.Reservation;
 import com.example.qms.reservation.services.ReservationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,11 +15,10 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
-import java.util.Base64;
+import java.util.*;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public  class QueueService implements QueueServiceInterface {
@@ -161,6 +161,13 @@ public  class QueueService implements QueueServiceInterface {
         Queue queue = getMustExistQueue(queueId);
         queue.setStatus(Queue.QueueStatus.CLOSED);
         queueRepository.save(queue);
+    }
+
+    public List<Queue> getQueues(Integer user_id) {
+
+        // Fetch all reservations for the queue by its ID
+        List<Queue> queues = queueRepository.findAll();
+        return new ArrayList<>(queues);
     }
 
     public Optional<Double> getAverageServingTime(UUID qid) {
