@@ -8,9 +8,12 @@ import com.example.qms.queue.services.QueueService;
 import com.example.qms.reservation.Reservation;
 import com.example.qms.reservation.exceptions.ReservationNotFoundException;
 import com.example.qms.reservation.services.ReservationService;
+import com.example.qms.user.User;
+import com.example.qms.user.config.CustomUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
@@ -75,6 +78,10 @@ public class QueueController {
             @Valid @RequestBody CreateQueueDTO dto
     ) {
         String queueId = queueService.createQueue(dto);
+        // In your code (for example, in a controller):
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long userId = userDetails.getId();  // Now you can access the user ID
+        System.out.println("Authenticated user ID: " + userId);
         return ResponseEntity.ok(queueId);
     }
 
