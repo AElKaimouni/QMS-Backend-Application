@@ -22,6 +22,7 @@ import com.example.qms.utils.EmailService;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -37,6 +38,12 @@ public class QueueController {
 
     @Autowired
     private ReservationService reservationService;
+
+    @GetMapping("/all")
+    public List<Queue> getAllQueues() {
+        int user_id = 5;
+        return queueService.getQueues(user_id);
+    }
 
     @GetMapping("/{qid}/validate/{token}")
     public Integer validateToken(
