@@ -53,7 +53,7 @@ public class QueueController {
     public ResponseEntity<Queue> getQueue(@PathVariable UUID queueId) {
         Optional<Queue> queue = queueService.getQueue(queueId);
 
-        if(queue.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        if(queue.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 
         return ResponseEntity.ok(queue.get());
     }
@@ -62,7 +62,7 @@ public class QueueController {
     public ResponseEntity<QueueConsultationInfoDTO> consultQueue(@PathVariable UUID queueId) {
         Optional<Queue> queue = queueService.getQueue(queueId);
 
-        if(queue.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        if(queue.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 
         Optional<Double> averageServTime = queueService.getAverageServingTime(queueId);
         QueueConsultationInfoDTO res = new QueueConsultationInfoDTO(queue.get(), averageServTime);
@@ -86,7 +86,7 @@ public class QueueController {
             newPosition = queue.getCounter();
         } catch (QueueNotFoundException e) {
 
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         } catch (QueueCounterLimitException e) {
 
             queue = e.queue;
@@ -117,7 +117,7 @@ public class QueueController {
             }
         } catch (ReservationNotFoundException e) {
             e.printStackTrace();
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
 
         return ResponseEntity.ok().build();

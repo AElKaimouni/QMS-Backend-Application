@@ -4,6 +4,7 @@ import com.example.qms.user.dto.LoginDTO;
 import com.example.qms.user.dto.RegistrationDTO;
 import com.example.qms.user.User;
 import com.example.qms.user.UserRepository;
+import com.example.qms.user.exceptions.EmailTakenExcepetion;
 import com.example.qms.utils.JwtTokenProvider;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -41,15 +42,10 @@ public class UserService {
     protected JwtTokenProvider jwtTokenProvider;
 
 
-    public void registerUser(RegistrationDTO registrationDTO) throws Exception {
+    public void registerUser(RegistrationDTO registrationDTO) throws EmailTakenExcepetion {
         // Check if email already exists
         if (userRepository.findByEmail(registrationDTO.getEmail()).isPresent()) {
-            throw new Exception("Email is already taken");
-        }
-
-        // Validate password and confirm password
-        if (!registrationDTO.getPassword().equals(registrationDTO.getConfirmPassword())) {
-            throw new Exception("Passwords do not match");
+            throw new EmailTakenExcepetion();
         }
 
         // Create new user with encoded password

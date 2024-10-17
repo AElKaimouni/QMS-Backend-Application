@@ -1,14 +1,18 @@
 package com.example.qms.user;
 
 import com.example.qms.user.dto.LoginDTO;
+import com.example.qms.user.dto.LoginResponseDTO;
 import com.example.qms.user.dto.RegistrationDTO;
+import com.example.qms.user.exceptions.EmailTakenExcepetion;
 import com.example.qms.user.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 public class UserController {
@@ -17,9 +21,10 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginDTO loginDTO) {
+    public LoginResponseDTO login(@RequestBody LoginDTO loginDTO) {
         String token = userService.login(loginDTO);
-        return ResponseEntity.ok(token);
+
+        return new LoginResponseDTO(token);
     }
 
 
@@ -27,9 +32,11 @@ public class UserController {
     public ResponseEntity<String> registerUser(@Validated @RequestBody RegistrationDTO registrationDTO) {
         try {
             userService.registerUser(registrationDTO);
+
             return ResponseEntity.ok("User registered successfully");
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (EmailTakenExcepetion e) {
+
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
     }
 }

@@ -45,7 +45,7 @@ public class ReservationController {
     public ResponseEntity<ReservationDTO> getReservationById(@PathVariable int id) {
         Optional<Reservation> reservation = reservationService.getReservation(id);
 
-        if(reservation.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        if(reservation.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 
         ReservationDTO dto = new ReservationDTO(reservation.get());
 
@@ -77,12 +77,12 @@ public class ReservationController {
             // Fetch the Reservation instance using its ID
             Optional<Reservation> reservation = reservationService.getReservation(dto.getReservationID());
 
-            if(reservation.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+            if(reservation.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 
             // Fetch the Queue instance using the queueId from the Reservation
             Optional<Queue> queue = queueService.getQueue(reservation.get().getQueueId());
 
-            if(queue.isEmpty()) throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+            if(queue.isEmpty()) return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 
             // Create and return the new DTO with the necessary properties
             ReservationInfoDTO info = new ReservationInfoDTO(
