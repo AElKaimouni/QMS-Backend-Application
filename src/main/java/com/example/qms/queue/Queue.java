@@ -23,6 +23,9 @@ public class Queue {
     private UUID secret;
 
     @Column(nullable = false)
+    private Long userId;
+
+    @Column(nullable = false)
     private String title;
 
     @Column(nullable = false)
@@ -57,8 +60,9 @@ public class Queue {
     private QueueConfig config;
 
 
-    public Queue(String title, String description) {
+    public Queue(String title, String description,Long userId) {
         this.title = title;
+        this.userId=userId;
         this.description = description;
         this.length = 0;
 

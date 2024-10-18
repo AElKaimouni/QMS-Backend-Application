@@ -103,11 +103,14 @@ public  class QueueService implements QueueServiceInterface {
         return  queue.get();
     }
 
-    public String createQueue(CreateQueueDTO dto) {
+    public String createQueue(CreateQueueDTO dto,Long userId) {
         // Implementation for creating a queue
+
         Queue queue = new Queue(
                 dto.getTitle(),
-                dto.getDescription()
+                dto.getDescription(),
+                userId
+
         );
         queue.setSecret(UUID.randomUUID());
         queue.setCreatedAt(LocalDateTime.now());
@@ -163,10 +166,10 @@ public  class QueueService implements QueueServiceInterface {
         queueRepository.save(queue);
     }
 
-    public List<Queue> getQueues(Integer user_id) {
+    public List<Queue> getQueues(Long user_id) {
 
         // Fetch all reservations for the queue by its ID
-        List<Queue> queues = queueRepository.findAll();
+        List<Queue> queues = queueRepository.findByUserId(user_id);
         return new ArrayList<>(queues);
     }
 

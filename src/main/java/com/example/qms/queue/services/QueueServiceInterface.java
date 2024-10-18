@@ -6,7 +6,7 @@ import com.example.qms.queue.dto.CreateQueueDTO;
 import java.util.UUID;
 
 public interface QueueServiceInterface {
-    public String createQueue(CreateQueueDTO dto);
+    public String createQueue(CreateQueueDTO dto,Long userId);
 
     public Integer reserve(UUID queueId);
 

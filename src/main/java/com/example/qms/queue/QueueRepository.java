@@ -19,4 +19,6 @@ public interface QueueRepository extends JpaRepository<Queue, UUID> {
         "AND DATE(r.join_at) = CURRENT_DATE",
     nativeQuery = true)
     Optional<Double> findAverageServingTimeForQueue(@Param("queueId") UUID queueId);
+
+    List<Queue> findByUserId(Long userId);
 }
