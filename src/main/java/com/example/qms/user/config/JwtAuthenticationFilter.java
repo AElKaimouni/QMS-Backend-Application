@@ -14,19 +14,20 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.io.IOException;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+    private final HandlerExceptionResolver handlerExceptionResolver;
+    private final JwtTokenProvider jwtTokenProvider;
 
-    @Autowired
-    private JwtTokenProvider jwtTokenProvider;
-
-    private UserDetailsService userDetailsService;
+    private final UserDetailsService userDetailsService;
 
     //Constructor
-    public JwtAuthenticationFilter(JwtTokenProvider jwtTokenProvider, UserDetailsService userDetailsService) {
+    public JwtAuthenticationFilter(JwtTokenProvider jwtTokenProvider, UserDetailsService userDetailsService, HandlerExceptionResolver handlerExceptionResolver) {
+        this.handlerExceptionResolver = handlerExceptionResolver;
         this.jwtTokenProvider = jwtTokenProvider;
         this.userDetailsService = userDetailsService;
     }
@@ -38,7 +39,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-
+        try {
         // Get JWT token from HTTP request
         String token = getTokenFromRequest(request);
 
@@ -59,7 +60,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
         }
-
+    } catch (Exception exception) {
+        handlerExceptionResolver.resolveException(request, response, null, exception);
+    }
         filterChain.doFilter(request, response);
     }
 
