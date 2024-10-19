@@ -39,7 +39,7 @@ public class PdfService {
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try {
-            HtmlConverter.convertToPdf(htmlContent, outputStream.toByteArray());
+            HtmlConverter.convertToPdf(htmlContent, outputStream);
         } catch (Exception e) {
             e.printStackTrace();
             // Handle exceptions as needed
