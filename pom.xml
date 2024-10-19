@@ -146,7 +146,19 @@
             <scope>runtime</scope>
         </dependency>
 
+        <!-- ZXing Core for QR Code generation -->
+        <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>core</artifactId>
+            <version>3.4.1</version>
+        </dependency>
 
+        <!-- PDF library -->
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>html2pdf</artifactId>
+            <version>5.0.5</version>
+        </dependency>
 
     </dependencies>
 

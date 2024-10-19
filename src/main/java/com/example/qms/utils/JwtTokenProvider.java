@@ -3,6 +3,8 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
@@ -15,11 +17,21 @@ import java.util.Date;
 @Component
 public class JwtTokenProvider {
 
-    private final String jwtSecret = generateSecretKey();
-    private final long jwtExpirationDate = 864_000_000; //1h = 3600s and 3600*1000 = 3600000 milliseconds
+    @Value("${jwt.secret:}") // Reads from environment; empty if not set
+    private String jwtSecret;
+
+    @Value("${jwt.expiration:864000000}") // Default expiration of 10 days in milliseconds
+    private long jwtExpirationDate;
+
+    @PostConstruct
+    public void init() {
+        // Generate a random secret key if not provided
+        if (jwtSecret.isEmpty()) {
+            jwtSecret = generateSecretKey();
+        }
+    }
 
     public String generateToken(Authentication authentication) {
-
         String username = authentication.getName();
         Date currentDate = new Date();
         Date expireDate = new Date(currentDate.getTime() + jwtExpirationDate);

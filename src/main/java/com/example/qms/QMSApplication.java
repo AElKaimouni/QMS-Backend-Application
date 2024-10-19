@@ -20,6 +20,12 @@ public class QMSApplication {
         System.setProperty("spring.datasource.username", Objects.requireNonNull(dotenv.get("DB_USERNAME")));
         System.setProperty("spring.datasource.password", Objects.requireNonNull(dotenv.get("DB_PASSWORD")));
 
+        String jwt_secret = dotenv.get("JWT_SECRET");
+        String jwt_exp = dotenv.get("JWT_EXPIRATION");
+
+        if(jwt_secret != null) System.setProperty("jwt.secret",jwt_secret);
+        if(jwt_exp != null) System.setProperty("jwt.expiration", jwt_exp);
+
         System.setProperty("spring.mail.host", Objects.requireNonNull(dotenv.get("SMTP_HOST")));
         System.setProperty("spring.mail.port", Objects.requireNonNull(dotenv.get("SMTP_PORT")));
         System.setProperty("spring.mail.username", Objects.requireNonNull(dotenv.get("SMTP_USERNAME")));

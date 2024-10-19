@@ -107,11 +107,12 @@ public  class QueueService implements QueueServiceInterface {
         // Implementation for creating a queue
 
         Queue queue = new Queue(
-                dto.getTitle(),
-                dto.getDescription(),
-                userId
-
+            dto.getTitle(),
+            dto.getDescription(),
+            dto.getConfig(),
+            userId
         );
+
         queue.setSecret(UUID.randomUUID());
         queue.setCreatedAt(LocalDateTime.now());
         queueRepository.save(queue);
@@ -173,7 +174,10 @@ public  class QueueService implements QueueServiceInterface {
         return new ArrayList<>(queues);
     }
 
-    public Optional<Double> getAverageServingTime(UUID qid) {
-        return queueRepository.findAverageServingTimeForQueue(qid);
+    public double getAverageServingTime(UUID qid) {
+        Optional<Double> estimation = queueRepository.findAverageServingTimeForQueue(qid);
+        if(estimation.isPresent()) return estimation.get();
+
+        return 0;
     }
 }

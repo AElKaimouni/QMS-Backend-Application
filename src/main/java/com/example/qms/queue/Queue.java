@@ -60,13 +60,12 @@ public class Queue {
     private QueueConfig config;
 
 
-    public Queue(String title, String description,Long userId) {
+    public Queue(String title, String description, QueueConfig config, Long userId) {
         this.title = title;
         this.userId=userId;
         this.description = description;
         this.length = 0;
-
-        QueueConfig config = new QueueConfig(1);
+        this.counter = 0;
 
         this.setConfig(config);
     }

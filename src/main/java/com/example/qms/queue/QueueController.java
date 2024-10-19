@@ -76,7 +76,7 @@ public class QueueController {
 
         if(queue.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 
-        Optional<Double> averageServTime = queueService.getAverageServingTime(queueId);
+        double averageServTime = queueService.getAverageServingTime(queueId);
         QueueConsultationInfoDTO res = new QueueConsultationInfoDTO(queue.get(), averageServTime);
 
         return ResponseEntity.ok(res);
@@ -88,7 +88,9 @@ public class QueueController {
     ) {
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Long userId = userDetails.getId();
-        String queueId = queueService.createQueue(dto,userId);
+
+        String queueId = queueService.createQueue(dto, userId);
+
         return ResponseEntity.ok(queueId);
     }
 

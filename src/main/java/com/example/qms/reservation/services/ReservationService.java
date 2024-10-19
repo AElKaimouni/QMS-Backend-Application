@@ -11,10 +11,15 @@ import com.example.qms.reservation.dto.ReservationInfoDTO;
 import com.example.qms.reservation.exceptions.ReservationNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -26,6 +31,8 @@ public class ReservationService {
     ReservationRepository reservationRepository;
     @Autowired
     QueueRepository queueRepository;
+
+    public static final int MAX_PAGE_SIZE = 50;
 
     private ReservationDTO mapToDTO(Reservation reservation) {
         return new ReservationDTO(reservation);
@@ -55,10 +62,50 @@ public class ReservationService {
     }
 
     // Read all reservations
-    public List<ReservationDTO> getAllReservationsForQueue(UUID queueId) {
-        // Fetch all reservations for the queue by its ID
-        List<Reservation> reservations = reservationRepository.findAllByQueueId(queueId);
-        return reservations.stream().map(this::mapToDTO).collect(Collectors.toList());
+    public Page<ReservationDTO> getAllReservationsForQueue(UUID queueId, int page, int size) {
+        if (size > MAX_PAGE_SIZE) {
+            size = MAX_PAGE_SIZE;
+        }
+
+        Page<Reservation> reservationsPage = reservationRepository.findAll(PageRequest.of(page, size, Sort.by("id").ascending()));
+
+        List<ReservationDTO> list = reservationsPage.stream().map(this::mapToDTO).collect(Collectors.toList());
+
+        return new PageImpl<>(list, reservationsPage.getPageable(), reservationsPage.getTotalElements());
+    }
+
+    // get all current reservations
+    public Page<ReservationDTO> getAllCurrentReservations(UUID queueId, int page, int size) {
+        if (size > MAX_PAGE_SIZE) {
+            size = MAX_PAGE_SIZE;
+        }
+
+        Page<Reservation> reservationsPage = reservationRepository
+            .findByStatusIn(
+                Arrays.asList("WAITING", "SERVING"),
+                PageRequest.of(page, size, Sort.by("id").ascending())
+            );
+
+        List<ReservationDTO> list = reservationsPage.stream().map(this::mapToDTO).collect(Collectors.toList());
+
+        return new PageImpl<>(list, reservationsPage.getPageable(), reservationsPage.getTotalElements());
+    }
+
+    // get all past reservations
+    public Page<ReservationDTO> getAllPastReservations(UUID queueId, int page, int size) {
+        if (size > MAX_PAGE_SIZE) {
+            size = MAX_PAGE_SIZE;
+        }
+
+        Page<Reservation> reservationsPage = reservationRepository
+            .findByStatusNotIn(
+                Arrays.asList("WAITING", "SERVING"),
+                PageRequest.of(page, size, Sort.by("id").descending())
+            );
+
+        List<ReservationDTO> list = reservationsPage.stream().map(this::mapToDTO).collect(Collectors.toList());
+
+        return new PageImpl<>(list, reservationsPage.getPageable(), reservationsPage.getTotalElements());
     }
 
     // Delete reservation

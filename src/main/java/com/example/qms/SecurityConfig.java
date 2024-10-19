@@ -41,6 +41,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/error").permitAll()
                         .requestMatchers("/login", "/register").permitAll()
+                        .requestMatchers("/reservations/generate-pdf/**").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling()

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Reservation Confirmation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .details {
+            margin-bottom: 20px;
+        }
+        .qr-code {
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h2>Reservation Confirmation for <span th:text="${queueName}">[Queue Name]</span></h2>
+    </div>
+
+    <p>Dear <span th:text="${clientName}">[Client Name]</span>,</p>
+
+    <p>We are pleased to confirm your reservation for <strong th:text="${queueName}">[Queue Name]</strong>. Below are the details of your position in the queue and the estimated time for your reservation:</p>
+
+    <div class="details">
+        <p><strong>Your Position:</strong> <span th:text="${yourPosition}">[Your Position]</span></p>
+        <p><strong>Current Position in Queue:</strong> <span th:text="${currentPosition}">[Current Position]</span></p>
+        <p><strong>Estimated Date:</strong> <span th:text="${estimatedDate}">[Estimated Date]</span></p>
+    </div>
+
+    <p>To streamline your experience upon arrival, please use the QR code below. You can scan this code at our location for faster processing and check-in:</p>
+
+    <div class="qr-code">
+        <img th:src="@{cid:qrCodeImage}" alt="QR Code" style="width: 200px; height: 200px;" />
+    </div>
+
+    <p>We appreciate your patience and look forward to serving you. Should you have any questions or need further assistance, feel free to contact us.</p>
+
+    <p>Thank you for choosing us.</p>
+
+    <p>Best regards,<br/>
+        <strong>[Your Company Name]</strong><br/>
+        [Company Contact Information]</p>
+</div>
+</body>
+</html>

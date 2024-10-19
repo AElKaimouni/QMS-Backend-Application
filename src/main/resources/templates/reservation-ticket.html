@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Reservation Confirmation</title>
+    <style>
+        body, html {
+            max-width: 400px;
+            max-height: 400px;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f9f9f9;
+
+        }
+        .container {
+            max-width: 400px;
+            margin: auto;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+            font-size: 22px;
+            margin-bottom: 10px;
+        }
+        .details {
+            font-size: 16px;
+            color: #555;
+            margin: 15px 0;
+        }
+        .qr-code img {
+            width: 150px; /* Specify a fixed width for QR code */
+            height: 150px; /* Specify a fixed height for QR code */
+        }
+        .footer {
+            font-size: 12px;
+            color: #888;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Reservation Confirmation</h1>
+    <div class="details">
+        <p>Queue: <strong th:text="${queueName}">General Queue</strong></p>
+        <p>Position: <strong th:text="${position}">1</strong></p>
+    </div>
+    <div class="qr-code">
+        <p>Your QR Code:</p>
+        <img th:src="${qrCode}" alt="QR Code" />
+    </div>
+    <div class="footer">
+        Thank you for your reservation!
+    </div>
+</div>
+</body>
+</html>
