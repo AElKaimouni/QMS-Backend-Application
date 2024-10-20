@@ -1,7 +1,13 @@
 package com.example.qms.utils;
 
 import com.google.zxing.WriterException;
+import com.itextpdf.html2pdf.ConverterProperties;
 import com.itextpdf.html2pdf.HtmlConverter;
+import com.itextpdf.kernel.geom.PageSize;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.styledxmlparser.css.media.MediaDeviceDescription;
+import com.itextpdf.styledxmlparser.css.media.MediaType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamSource;
 import org.springframework.stereotype.Service;
@@ -17,9 +23,10 @@ public class PdfService {
     @Autowired
     private TemplateEngine templateEngine;
 
-    public byte[] generatePdf(int position, String queueName, String token) {
+    public byte[] generatePdf(int reservationId, int position, String queueName, String token) {
         Context context = new Context();
         context.setVariable("position", position);
+        context.setVariable("reservationId", reservationId);
         context.setVariable("queueName", queueName);
 
         // Generate the QR code
@@ -39,7 +46,16 @@ public class PdfService {
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try {
-            HtmlConverter.convertToPdf(htmlContent, outputStream);
+            PdfWriter writer = new PdfWriter(outputStream);
+            PdfDocument pdf = new PdfDocument(writer);
+            pdf.setTagged();
+            PageSize pageSize = new PageSize(350, 400);
+            pdf.setDefaultPageSize(pageSize);
+            ConverterProperties properties = new ConverterProperties();
+            MediaDeviceDescription mediaDeviceDescription = new MediaDeviceDescription(MediaType.SCREEN);
+            mediaDeviceDescription.setWidth(pageSize.getWidth());
+            properties.setMediaDeviceDescription(mediaDeviceDescription);
+            HtmlConverter.convertToPdf(htmlContent, pdf, properties);
         } catch (Exception e) {
             e.printStackTrace();
             // Handle exceptions as needed

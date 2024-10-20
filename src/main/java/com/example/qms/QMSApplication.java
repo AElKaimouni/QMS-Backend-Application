@@ -16,6 +16,8 @@ public class QMSApplication {
         Dotenv dotenv= Dotenv.load();
 
         // Set the environment variables as system properties
+        System.setProperty("spring.app.url", Objects.requireNonNull(dotenv.get("APP_URL")));
+
         System.setProperty("spring.datasource.url", Objects.requireNonNull(dotenv.get("DB_URL")));
         System.setProperty("spring.datasource.username", Objects.requireNonNull(dotenv.get("DB_USERNAME")));
         System.setProperty("spring.datasource.password", Objects.requireNonNull(dotenv.get("DB_PASSWORD")));

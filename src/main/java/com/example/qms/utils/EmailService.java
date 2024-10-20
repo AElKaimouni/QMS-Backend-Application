@@ -78,6 +78,8 @@ public class EmailService {
             String token,
             String queueName,
             String clientName,
+            String ticketLink,
+            long reservationId,
             int yourPosition,
             int currentPosition,
             Date estimatedDate
@@ -96,9 +98,11 @@ public class EmailService {
 
         context.setVariable("clientName", clientName);
         context.setVariable("queueName", queueName);
+        context.setVariable("reservationId", reservationId);
         context.setVariable("yourPosition", yourPosition);
         context.setVariable("currentPosition", currentPosition);
         context.setVariable("estimatedDate", estimatedDate);
+        context.setVariable("ticketLink", ticketLink);
 
         String htmlContent = templateEngine.process("reservation-email", context);
 

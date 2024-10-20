@@ -15,6 +15,7 @@ import java.util.UUID;
 public interface ReservationRepository extends JpaRepository<Reservation, Integer> {
     List<Reservation> findAllByQueueId(UUID queueId);
     Optional<Reservation> findByQueueIdAndPosition(UUID queueId, int position);
-    Page<Reservation> findByStatusIn(List<String> states, Pageable pageable);
-    Page<Reservation> findByStatusNotIn(List<String> states, Pageable pageable);
+    Page<Reservation> findByQueueId(UUID queueId, Pageable pageable);
+    Page<Reservation> findByQueueIdAndStatusIn(UUID queueId, List<String> states, Pageable pageable);
+    Page<Reservation> findByQueueIdAndStatusNotIn(UUID queueId, List<String> states, Pageable pageable);
 }

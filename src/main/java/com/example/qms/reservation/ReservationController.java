@@ -40,14 +40,20 @@ public class ReservationController {
     private PdfService pdfService;
 
     @GetMapping("/generate-pdf/{reservation_id}")
-    public ResponseEntity<byte[]> generatePdf(@PathVariable("reservation_id") int reservationId) {
+    public ResponseEntity<byte[]> generatePdf(
+        @PathVariable("reservation_id") int reservationId,
+        @RequestParam("token") String token
+    ) {
         Optional<Reservation> reservation = reservationService.getReservation(reservationId);
 
         if(reservation.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 
+        if(!reservation.get().getToken().equals(token)) return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+
         Queue queue = queueService.getMustExistQueue(reservation.get().getQueueId());
 
         byte[] pdfBytes = pdfService.generatePdf(
+            reservationId,
             reservation.get().getPosition(),
             queue.getTitle(),
             reservation.get().getToken()
@@ -69,6 +75,10 @@ public class ReservationController {
             int queuePosition = queueService.reserve(createReservationDTO.getQueueId());
             String token = queueService.generateToken(queuePosition,createReservationDTO.getQueueId());
             ReservationDTO createdReservation = reservationService.createReservation(createReservationDTO, queuePosition, token);
+            String ticketLink = reservationService.generateReservationTicketURL(
+                createdReservation.getId(),
+                createdReservation.getToken()
+            );
 
             // notify by email
             emailService.sendReservationEmail(
@@ -76,6 +86,8 @@ public class ReservationController {
                 createdReservation.getToken(),
                 queue.getTitle(),
                 "",
+                ticketLink,
+                createdReservation.getId(),
                 queuePosition,
                 queue.getCounter(),
                 new Date((new Date()).getTime() + (int) estimatedServeTime * 1000)

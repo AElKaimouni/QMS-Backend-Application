@@ -11,12 +11,15 @@ import com.example.qms.reservation.dto.ReservationInfoDTO;
 import com.example.qms.reservation.exceptions.ReservationNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -32,7 +35,15 @@ public class ReservationService {
     @Autowired
     QueueRepository queueRepository;
 
+    @Value("${spring.app.url}")
+    private String appURL;
+
     public static final int MAX_PAGE_SIZE = 50;
+
+    public String generateReservationTicketURL(long reservationId, String token) throws UnsupportedEncodingException {
+        String encodedToken = URLEncoder.encode(token, "UTF-8");
+        return appURL + "/reservations/generate-pdf/" + reservationId + "?token=" + encodedToken;
+    }
 
     private ReservationDTO mapToDTO(Reservation reservation) {
         return new ReservationDTO(reservation);
@@ -67,7 +78,10 @@ public class ReservationService {
             size = MAX_PAGE_SIZE;
         }
 
-        Page<Reservation> reservationsPage = reservationRepository.findAll(PageRequest.of(page, size, Sort.by("id").ascending()));
+        Page<Reservation> reservationsPage = reservationRepository.findByQueueId(
+            queueId,
+            PageRequest.of(page, size, Sort.by("id").ascending())
+        );
 
         List<ReservationDTO> list = reservationsPage.stream().map(this::mapToDTO).collect(Collectors.toList());
 
@@ -81,7 +95,8 @@ public class ReservationService {
         }
 
         Page<Reservation> reservationsPage = reservationRepository
-            .findByStatusIn(
+            .findByQueueIdAndStatusIn(
+                queueId,
                 Arrays.asList("WAITING", "SERVING"),
                 PageRequest.of(page, size, Sort.by("id").ascending())
             );
@@ -98,7 +113,8 @@ public class ReservationService {
         }
 
         Page<Reservation> reservationsPage = reservationRepository
-            .findByStatusNotIn(
+            .findByQueueIdAndStatusNotIn(
+                queueId,
                 Arrays.asList("WAITING", "SERVING"),
                 PageRequest.of(page, size, Sort.by("id").descending())
             );

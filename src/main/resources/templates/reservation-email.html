@@ -21,11 +21,29 @@
             margin-bottom: 20px;
         }
         .details {
-            margin-bottom: 20px;
         }
         .qr-code {
             text-align: center;
-            margin-top: 20px;
+        }
+        .flex {
+            display: flex;
+            justify-content: space-between;
+        }
+        .button-container {
+            text-align: center;
+            margin-top: 30px;
+        }
+        .download-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .download-button:hover {
+            background-color: #0056b3;
         }
     </style>
 </head>
@@ -39,16 +57,22 @@
 
     <p>We are pleased to confirm your reservation for <strong th:text="${queueName}">[Queue Name]</strong>. Below are the details of your position in the queue and the estimated time for your reservation:</p>
 
-    <div class="details">
-        <p><strong>Your Position:</strong> <span th:text="${yourPosition}">[Your Position]</span></p>
-        <p><strong>Current Position in Queue:</strong> <span th:text="${currentPosition}">[Current Position]</span></p>
-        <p><strong>Estimated Date:</strong> <span th:text="${estimatedDate}">[Estimated Date]</span></p>
+    <div class="flex">
+        <div class="details">
+            <p>Reservation ID: <strong th:text="${reservationId}">[Your Reservation ID]</strong></p>
+            <p>Your Position: <strong th:text="${yourPosition}">[Your Position]</strong></p>
+            <p>Current Position:</strong> <strong th:text="${currentPosition}">[Current Position]</strong></p>
+            <p>Estimated Date: <strong th:text="${estimatedDate}">[Estimated Date]</strong></p>
+        </div>
+        <div class="qr-code">
+            <img th:src="@{cid:qrCodeImage}" alt="QR Code" style="width: 200px; height: 200px;" />
+        </div>
     </div>
 
-    <p>To streamline your experience upon arrival, please use the QR code below. You can scan this code at our location for faster processing and check-in:</p>
+    <p>Please provide the QR code below upon arrival at our location to validate your position in the queue. This will help streamline the process and verify your reservation:</p>
 
-    <div class="qr-code">
-        <img th:src="@{cid:qrCodeImage}" alt="QR Code" style="width: 200px; height: 200px;" />
+    <div class="button-container">
+        <a th:href="${ticketLink}" class="download-button">Download Your Ticket</a>
     </div>
 
     <p>We appreciate your patience and look forward to serving you. Should you have any questions or need further assistance, feel free to contact us.</p>
