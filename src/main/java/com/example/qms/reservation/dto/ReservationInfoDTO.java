@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ReservationInfoDTO {
     private int reservationPosition;
-    private int queueLength;
-    private int queuePosition;
+    private int queueCounter;
+    private int estimatedWaitTime;
 }

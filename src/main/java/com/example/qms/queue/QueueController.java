@@ -142,7 +142,7 @@ public class QueueController {
     }
 
     // Get all reservations for a queue
-    @GetMapping("/{queueId}/reservations&")
+    @GetMapping("/{queueId}/reservations")
     public ResponseEntity<Page<ReservationDTO>> getCurrentReservations(
             @PathVariable UUID queueId,
             @RequestParam(defaultValue = "0") int page,

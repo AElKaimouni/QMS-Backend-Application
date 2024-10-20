@@ -100,48 +100,28 @@ public class ReservationController {
         }
     }
 
-    // Get a single reservation by ID
-    @GetMapping("/{id}")
-    public ResponseEntity<ReservationDTO> consultReservation(@PathVariable int id, @RequestParam("token") String token) {
-        Optional<Reservation> reservation = reservationService.getReservation(id);
-
-        if(reservation.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        if(!reservation.get().getToken().equals(token)) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-
-        ReservationDTO dto = new ReservationDTO(reservation.get());
-
-        return ResponseEntity.ok(dto);
-    }
-
-    //Delete Reservation
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteReservation(@PathVariable int id) {
-        // Appel du service pour supprimer la réservation
-        reservationService.deleteReservation(id);
-        // Retourner un statut 204 (No Content) si la suppression a réussi
-        return ResponseEntity.noContent().build();
-    }
-
     // Consult Reservation
     @GetMapping("/{id}/consult")
-    public ResponseEntity<ReservationInfoDTO> consultReservation(@PathVariable int id) {
+    public ResponseEntity<ReservationInfoDTO> consultReservation(
+            @PathVariable("id") int id,
+            @RequestParam("token") String token
+    ) {
         try {
-            ConsultReservationStateDTO dto = new ConsultReservationStateDTO(id);
-            // Fetch the Reservation instance using its ID
-            Optional<Reservation> reservation = reservationService.getReservation(dto.getReservationID());
+            Optional<Reservation> reservation = reservationService.getReservation(id);
 
             if(reservation.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            if(!reservation.get().getToken().equals(token)) return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 
             // Fetch the Queue instance using the queueId from the Reservation
-            Optional<Queue> queue = queueService.getQueue(reservation.get().getQueueId());
-
-            if(queue.isEmpty()) return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            Queue queue = queueService.getMustExistQueue(reservation.get().getQueueId());
+            double averageServTime = queueService.getAverageServingTime(reservation.get().getQueueId());
+            int esitmatedWaitTime = (int) (averageServTime * (queue.getLength() - queue.getCounter()));
 
             // Create and return the new DTO with the necessary properties
             ReservationInfoDTO info = new ReservationInfoDTO(
-                    reservation.get().getPosition(),
-                    queue.get().getLength(),
-                    queue.get().getCounter()
+                reservation.get().getPosition(),
+                queue.getCounter(),
+                esitmatedWaitTime
             );
 
             return ResponseEntity.ok(info);
