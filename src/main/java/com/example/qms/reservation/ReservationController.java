@@ -102,40 +102,15 @@ public class ReservationController {
 
     // Get a single reservation by ID
     @GetMapping("/{id}")
-    public ResponseEntity<ReservationDTO> getReservationById(@PathVariable int id) {
+    public ResponseEntity<ReservationDTO> consultReservation(@PathVariable int id, @RequestParam("token") String token) {
         Optional<Reservation> reservation = reservationService.getReservation(id);
 
         if(reservation.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        if(!reservation.get().getToken().equals(token)) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 
         ReservationDTO dto = new ReservationDTO(reservation.get());
 
-
         return ResponseEntity.ok(dto);
-    }
-
-    // Get all reservations for a queue
-    @GetMapping("/queue/{queueId}")
-    public ResponseEntity<Page<ReservationDTO>> getCurrentReservations(
-            @PathVariable UUID queueId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "all") String scope
-    ) {
-        switch (scope) {
-            case "current": {
-                Page<ReservationDTO> reservations = reservationService.getAllCurrentReservations(queueId, page, size);
-                return ResponseEntity.ok(reservations);
-            }
-            case "past": {
-                Page<ReservationDTO> reservations = reservationService.getAllPastReservations(queueId, page, size);
-                return ResponseEntity.ok(reservations);
-            }
-            default: {
-                Page<ReservationDTO> reservations = reservationService.getAllReservationsForQueue(queueId, page, size);
-                return ResponseEntity.ok(reservations);
-            }
-        }
-
     }
 
     //Delete Reservation

@@ -6,11 +6,13 @@ import com.example.qms.queue.exceptions.QueueCounterLimitException;
 import com.example.qms.queue.exceptions.QueueNotFoundException;
 import com.example.qms.queue.services.QueueService;
 import com.example.qms.reservation.Reservation;
+import com.example.qms.reservation.dto.ReservationDTO;
 import com.example.qms.reservation.exceptions.ReservationNotFoundException;
 import com.example.qms.reservation.services.ReservationService;
 import com.example.qms.user.User;
 import com.example.qms.user.config.CustomUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -137,6 +139,31 @@ public class QueueController {
         }
 
         return ResponseEntity.ok().build();
+    }
+
+    // Get all reservations for a queue
+    @GetMapping("/{queueId}/reservations&")
+    public ResponseEntity<Page<ReservationDTO>> getCurrentReservations(
+            @PathVariable UUID queueId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "all") String scope
+    ) {
+        switch (scope) {
+            case "current": {
+                Page<ReservationDTO> reservations = reservationService.getAllCurrentReservations(queueId, page, size);
+                return ResponseEntity.ok(reservations);
+            }
+            case "past": {
+                Page<ReservationDTO> reservations = reservationService.getAllPastReservations(queueId, page, size);
+                return ResponseEntity.ok(reservations);
+            }
+            default: {
+                Page<ReservationDTO> reservations = reservationService.getAllReservationsForQueue(queueId, page, size);
+                return ResponseEntity.ok(reservations);
+            }
+        }
+
     }
 
     @DeleteMapping("/{queueId}")
