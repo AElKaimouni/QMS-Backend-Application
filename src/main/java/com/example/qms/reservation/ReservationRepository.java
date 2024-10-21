@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface ReservationRepository extends JpaRepository<Reservation, Integer> {
+public interface ReservationRepository extends JpaRepository<Reservation, Long> {
     List<Reservation> findAllByQueueId(UUID queueId);
     Optional<Reservation> findByQueueIdAndPosition(UUID queueId, int position);
     Page<Reservation> findByQueueId(UUID queueId, Pageable pageable);

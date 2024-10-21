@@ -36,8 +36,8 @@ public class Reservation {
     public enum ReservationStatus{
         WAITING,
         SERVING,
-        CANCELED,     // Reservation has been canceled
-        SERVED,    // Reservation process has been completed
-        EXPIRED,      // Reservation was not used or expired
+        CANCELED,
+        SERVED,
+        EXPIRED,
     }
 }

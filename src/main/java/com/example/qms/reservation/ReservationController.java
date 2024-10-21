@@ -39,6 +39,7 @@ public class ReservationController {
     @Autowired
     private PdfService pdfService;
 
+    // generate pdf ticket
     @GetMapping("/generate-pdf/{reservation_id}")
     public ResponseEntity<byte[]> generatePdf(
         @PathVariable("reservation_id") int reservationId,
@@ -68,7 +69,9 @@ public class ReservationController {
 
     //Create Reservation
     @PostMapping
-    public ResponseEntity<ReservationDTO> createReservation(@RequestBody CreateReservationDTO createReservationDTO) throws Exception {
+    public ResponseEntity<ReservationDTO> createReservation(
+            @RequestBody CreateReservationDTO createReservationDTO
+    ) throws Exception {
         try {
             Queue queue = queueService.getMustExistQueue(createReservationDTO.getQueueId());
             double estimatedServeTime = queueService.getAverageServingTime(createReservationDTO.getQueueId());
@@ -119,6 +122,7 @@ public class ReservationController {
 
             // Create and return the new DTO with the necessary properties
             ReservationInfoDTO info = new ReservationInfoDTO(
+                queue.getTitle(),
                 reservation.get().getPosition(),
                 queue.getCounter(),
                 esitmatedWaitTime
@@ -130,4 +134,24 @@ public class ReservationController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    @PostMapping("/{id}/cancel")
+    public ResponseEntity cancelReservation(
+        @PathVariable("id") long reservationId,
+        @RequestParam("token") String token
+    ) {
+        Optional<Reservation> reservation = reservationService.getReservation(reservationId);
+
+        if(reservation.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        if(!reservation.get().getToken().equals(token)) return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+
+        try {
+            reservationService.cancelReservation(reservationId);
+
+            return ResponseEntity.ok().build();
+        } catch (ReservationNotFoundException e) {
+            return  ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
 }

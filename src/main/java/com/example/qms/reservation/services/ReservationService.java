@@ -67,7 +67,7 @@ public class ReservationService {
     }
 
     // Read a single reservation by ID
-    public Optional<Reservation> getReservation(int id) {
+    public Optional<Reservation> getReservation(long id) {
 
         return reservationRepository.findById(id);
     }
@@ -125,7 +125,7 @@ public class ReservationService {
     }
 
     // Delete reservation
-    public void deleteReservation(int id) {
+    public void deleteReservation(long id) {
         Reservation reservation = reservationRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Reservation not found with id: " + id));
         reservationRepository.delete(reservation);
@@ -141,5 +141,15 @@ public class ReservationService {
 
     public void saveReservation(Reservation reservation) {
         this.reservationRepository.save(reservation);
+    }
+
+    public void cancelReservation(long reservationId) {
+        Optional<Reservation> reservation = reservationRepository.findById(reservationId);
+
+        if(reservation.isEmpty()) throw new ReservationNotFoundException();
+
+        reservation.get().setStatus(Reservation.ReservationStatus.CANCELED);
+
+        reservationRepository.save(reservation.get());
     }
 }
