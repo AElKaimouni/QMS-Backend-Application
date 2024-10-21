@@ -20,5 +20,8 @@ public interface QueueRepository extends JpaRepository<Queue, UUID> {
     nativeQuery = true)
     Optional<Double> findAverageServingTimeForQueue(@Param("queueId") UUID queueId);
 
+    @Query("SELECT q.userId FROM Queue q WHERE q.id = :queueId")
+    Long findUserIdByQueueId(@Param("queueId") UUID queueId);
+
     List<Queue> findByUserId(Long userId);
 }

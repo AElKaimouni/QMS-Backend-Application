@@ -40,8 +40,10 @@ public class SecurityConfig {
                 .csrf().disable()
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/error").permitAll()
-                        .requestMatchers("/login", "/register").permitAll()
+                        .requestMatchers("/login", "/register", "/verify","/password-reset-request","/reset-password").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        // Allow public access to Google OAuth URLs
+                       // .requestMatchers("/oauth2/**").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling()
                 .authenticationEntryPoint(authenticationEntryPoint) // Use the custom entry point

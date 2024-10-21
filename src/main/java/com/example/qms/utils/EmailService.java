@@ -1,5 +1,7 @@
 package com.example.qms.utils;
 
+import com.example.qms.user.User;
+import io.github.cdimascio.dotenv.Dotenv;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,19 +16,20 @@ import org.thymeleaf.context.Context;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 @Service
 public class EmailService {
-
     @Autowired
     private JavaMailSender mailSender;
 
     @Autowired
     private TemplateEngine templateEngine;
 
+    private String appAdresse="localhost:8080";
+
     @Value("${spring.mail.from}")
     private String emailFrom;
+
 
     public void sendEmail(String to, String subject, String text) {
         SimpleMailMessage message = new SimpleMailMessage();
@@ -64,4 +67,19 @@ public class EmailService {
 
         this.sendEmailWithTempate(to, "Reservation Turn Arrived!", "reservation-turn-arrived", config);
     }
+
+    public void sendVerificationEmail(String to, String token) {
+        String subject = "Account Verification";
+        String confirmationUrl =  "http://"+appAdresse+"/verify?token=" + token; // Update with your actual URL
+        String message = "Please verify your account by clicking the link: " + confirmationUrl;
+        sendEmail(to, subject, message);
+    }
+
+    public void sendPasswordResetEmail(User user, String resetToken) {
+        String resetUrl = "http://"+appAdresse+"/reset-password?token=" + resetToken;
+        String subject = "Password Reset Request";
+        String body = "To reset your password, click the following link: " + resetUrl;
+        sendEmail(user.getEmail(), subject, body);
+    }
+
 }

@@ -24,8 +24,13 @@ public class QMSApplication {
         System.setProperty("spring.mail.port", Objects.requireNonNull(dotenv.get("SMTP_PORT")));
         System.setProperty("spring.mail.username", Objects.requireNonNull(dotenv.get("SMTP_USERNAME")));
         System.setProperty("spring.mail.password", Objects.requireNonNull(dotenv.get("SMTP_PASSWORD")));
+        System.setProperty("spring.mail.from", Objects.requireNonNull(dotenv.get("SMTP_USERNAME")));
+        System.setProperty("spring.mail.properties.mail.smtp.auth", Objects.requireNonNull(dotenv.get("SMTP_AUTH")));
+        System.setProperty("spring.mail.properties.mail.smtp.starttls.enable", Objects.requireNonNull(dotenv.get("STARTTLS_ENABLE")));
+        System.setProperty("server.addres", Objects.requireNonNull(dotenv.get("APP_ADRESS")));
 
-        System.setProperty("spring.mail.from", Objects.requireNonNull(dotenv.get("NOTIFICATION_EMAIL_FROM")));
+        //System.setProperty("spring.security.oauth2.client.registration.google.client-id", Objects.requireNonNull(dotenv.get("GOOGLE_CLIENT_ID")));
+        //System.setProperty("spring.security.oauth2.client.registration.google.client-secret", Objects.requireNonNull(dotenv.get("GOOGLE_CLIENT_SECRET")));
 
         SpringApplication.run(QMSApplication.class, args);
 

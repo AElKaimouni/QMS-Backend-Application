@@ -95,9 +95,22 @@ public class QueueController {
     @PostMapping("/{queueId}/next")
     public ResponseEntity<Void> next(@PathVariable UUID queueId) {
         Queue queue; int newPosition;
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long userId = userDetails.getId();
         try {
+
+            // Fetch the queue
+            queue = queueService.getMustExistQueue(queueId);
+            Long queueOwnerId = queue.getUserId();
+
+            // Check if the authenticated user is the owner of the queue
+            if (!userId.equals(queueOwnerId)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); // 403 Forbidden if not the owner
+            }
+
             queue = queueService.next(queueId);
             newPosition = queue.getCounter();
+
         } catch (QueueNotFoundException e) {
 
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -139,26 +152,90 @@ public class QueueController {
 
     @DeleteMapping("/{queueId}")
     public ResponseEntity<Void> delete(@PathVariable UUID queueId) {
-        queueService.delete(queueId);
-        return ResponseEntity.ok().build();
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long userId = userDetails.getId();
+
+        Queue queue;
+        try {
+            queue = queueService.getMustExistQueue(queueId);
+            Long queueOwnerId = queue.getUserId();
+
+            if (!userId.equals(queueOwnerId)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); // 403 Forbidden if not the owner
+            }
+
+            queueService.delete(queueId);
+            return ResponseEntity.ok().build();
+        } catch (QueueNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
     }
+
 
     @PostMapping("/{queueId}/start")
     public ResponseEntity<Void> start(@PathVariable UUID queueId) {
-        queueService.start(queueId);
-        return ResponseEntity.ok().build();
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long userId = userDetails.getId();
+
+        Queue queue;
+        try {
+            queue = queueService.getMustExistQueue(queueId);
+            Long queueOwnerId = queue.getUserId();
+
+            if (!userId.equals(queueOwnerId)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); // 403 Forbidden if not the owner
+            }
+
+            queueService.start(queueId);
+            return ResponseEntity.ok().build();
+        } catch (QueueNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
     }
+
 
     @PostMapping("/{queueId}/pause")
     public ResponseEntity<Void> pause(@PathVariable UUID queueId) {
-        queueService.paused(queueId);
-        return ResponseEntity.ok().build();
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long userId = userDetails.getId();
+
+        Queue queue;
+        try {
+            queue = queueService.getMustExistQueue(queueId);
+            Long queueOwnerId = queue.getUserId();
+
+            if (!userId.equals(queueOwnerId)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); // 403 Forbidden if not the owner
+            }
+
+            queueService.paused(queueId);
+            return ResponseEntity.ok().build();
+        } catch (QueueNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
     }
+
 
     @PostMapping("/{queueId}/close")
     public ResponseEntity<Void> close(@PathVariable UUID queueId) {
-        queueService.close(queueId);
-        return ResponseEntity.ok().build();
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long userId = userDetails.getId();
+
+        Queue queue;
+        try {
+            queue = queueService.getMustExistQueue(queueId);
+            Long queueOwnerId = queue.getUserId();
+
+            if (!userId.equals(queueOwnerId)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); // 403 Forbidden if not the owner
+            }
+
+            queueService.close(queueId);
+            return ResponseEntity.ok().build();
+        } catch (QueueNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
     }
+
 
 }

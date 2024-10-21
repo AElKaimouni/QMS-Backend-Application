@@ -176,4 +176,8 @@ public  class QueueService implements QueueServiceInterface {
     public Optional<Double> getAverageServingTime(UUID qid) {
         return queueRepository.findAverageServingTimeForQueue(qid);
     }
+
+    public Long getUserIdByQueueId(UUID queueId) throws QueueNotFoundException {
+        return queueRepository.findUserIdByQueueId(queueId);
+    }
 }
