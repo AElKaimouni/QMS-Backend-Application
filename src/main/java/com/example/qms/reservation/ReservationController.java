@@ -2,6 +2,8 @@ package com.example.qms.reservation;
 
 import com.example.qms.queue.Queue;
 import com.example.qms.queue.exceptions.QueueNotFoundException;
+import com.example.qms.queue.exceptions.UnvalidReservationInfoException;
+import com.example.qms.queue.services.QueueFieldsService;
 import com.example.qms.queue.services.QueueService;
 import com.example.qms.reservation.dto.ConsultReservationStateDTO;
 import com.example.qms.reservation.dto.CreateReservationDTO;
@@ -11,6 +13,7 @@ import com.example.qms.reservation.exceptions.ReservationNotFoundException;
 import com.example.qms.reservation.services.ReservationService;
 import com.example.qms.utils.EmailService;
 import com.example.qms.utils.PdfService;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
@@ -20,6 +23,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -34,6 +38,8 @@ public class ReservationController {
     @Autowired
     QueueService queueService;
     @Autowired
+    QueueFieldsService queueFieldService;
+    @Autowired
     EmailService emailService;
 
     @Autowired
@@ -44,7 +50,7 @@ public class ReservationController {
     public ResponseEntity<byte[]> generatePdf(
         @PathVariable("reservation_id") int reservationId,
         @RequestParam("token") String token
-    ) {
+    ) throws UnsupportedEncodingException {
         Optional<Reservation> reservation = reservationService.getReservation(reservationId);
 
         if(reservation.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -52,12 +58,16 @@ public class ReservationController {
         if(!reservation.get().getToken().equals(token)) return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 
         Queue queue = queueService.getMustExistQueue(reservation.get().getQueueId());
+        String qrCode = reservationService.generateReservationConsultantURL(
+            reservation.get().getId(),
+            reservation.get().getToken()
+        );
 
         byte[] pdfBytes = pdfService.generatePdf(
             reservationId,
             reservation.get().getPosition(),
             queue.getTitle(),
-            reservation.get().getToken()
+            qrCode
         );
 
         HttpHeaders headers = new HttpHeaders();
@@ -74,6 +84,10 @@ public class ReservationController {
     ) throws Exception {
         try {
             Queue queue = queueService.getMustExistQueue(createReservationDTO.getQueueId());
+            JSONObject info = new JSONObject(createReservationDTO.getInfo());
+
+            queueFieldService.validateJson(info, queue.getConfig().getFields());
+
             double estimatedServeTime = queueService.getAverageServingTime(createReservationDTO.getQueueId());
             int queuePosition = queueService.reserve(createReservationDTO.getQueueId());
             String token = queueService.generateToken(queuePosition,createReservationDTO.getQueueId());
@@ -82,11 +96,15 @@ public class ReservationController {
                 createdReservation.getId(),
                 createdReservation.getToken()
             );
+            String consultantLink = reservationService.generateReservationConsultantURL(
+                createdReservation.getId(),
+                createdReservation.getToken()
+            );
 
             // notify by email
             emailService.sendReservationEmail(
                 createdReservation.getEmail(),
-                createdReservation.getToken(),
+                consultantLink,
                 queue.getTitle(),
                 "",
                 ticketLink,
@@ -100,6 +118,8 @@ public class ReservationController {
             return ResponseEntity.ok(createdReservation);
         } catch (QueueNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (UnvalidReservationInfoException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
 

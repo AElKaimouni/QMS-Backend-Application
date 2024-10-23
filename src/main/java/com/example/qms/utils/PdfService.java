@@ -23,7 +23,7 @@ public class PdfService {
     @Autowired
     private TemplateEngine templateEngine;
 
-    public byte[] generatePdf(int reservationId, int position, String queueName, String token) {
+    public byte[] generatePdf(int reservationId, int position, String queueName, String qrCode) {
         Context context = new Context();
         context.setVariable("position", position);
         context.setVariable("reservationId", reservationId);
@@ -32,7 +32,7 @@ public class PdfService {
         // Generate the QR code
         byte[] qrCodeBytes = null;
         try {
-            qrCodeBytes = QRCodeGenerator.generateQrCode(token);
+            qrCodeBytes = QRCodeGenerator.generateQrCode(qrCode);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

@@ -2,6 +2,7 @@ package com.example.qms.queue;
 
 import com.example.qms.queue.config.QueueConfig;
 import com.example.qms.queue.config.QueueConfigAttributeConverter;
+import com.example.qms.queue.enums.QueueStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -36,14 +37,6 @@ public class Queue {
 
     @Column(nullable = false)
     private int length;
-
-    public enum QueueStatus {
-        CREATED,
-        ACTIVE,
-        PAUSED,
-        CLOSED,
-        DELETED
-    }
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

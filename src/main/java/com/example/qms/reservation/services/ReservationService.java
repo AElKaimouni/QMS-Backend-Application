@@ -8,8 +8,10 @@ import com.example.qms.reservation.dto.ConsultReservationStateDTO;
 import com.example.qms.reservation.dto.CreateReservationDTO;
 import com.example.qms.reservation.dto.ReservationDTO;
 import com.example.qms.reservation.dto.ReservationInfoDTO;
+import com.example.qms.reservation.enums.ReservationStatus;
 import com.example.qms.reservation.exceptions.ReservationNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -40,11 +42,6 @@ public class ReservationService {
 
     public static final int MAX_PAGE_SIZE = 50;
 
-    public String generateReservationTicketURL(long reservationId, String token) throws UnsupportedEncodingException {
-        String encodedToken = URLEncoder.encode(token, "UTF-8");
-        return appURL + "/reservations/generate-pdf/" + reservationId + "?token=" + encodedToken;
-    }
-
     private ReservationDTO mapToDTO(Reservation reservation) {
         return new ReservationDTO(reservation);
     }
@@ -58,7 +55,7 @@ public class ReservationService {
         reservation.setEmail(createReservationDTO.getEmail());
         reservation.setJoinAt(Timestamp.valueOf(LocalDateTime.now()));
         reservation.setQueueId(createReservationDTO.getQueueId());
-        
+        reservation.setInfo(new JSONObject(createReservationDTO.getInfo()));
 
         // Save the reservation to the database
         reservationRepository.save(reservation);
@@ -148,8 +145,18 @@ public class ReservationService {
 
         if(reservation.isEmpty()) throw new ReservationNotFoundException();
 
-        reservation.get().setStatus(Reservation.ReservationStatus.CANCELED);
+        reservation.get().setStatus(ReservationStatus.CANCELED);
 
         reservationRepository.save(reservation.get());
+    }
+
+    public String generateReservationTicketURL(long reservationId, String token) throws UnsupportedEncodingException {
+        String encodedToken = URLEncoder.encode(token, "UTF-8");
+        return appURL + "/reservations/generate-pdf/" + reservationId + "?token=" + encodedToken;
+    }
+
+    public String generateReservationConsultantURL(long reservationId, String token) throws UnsupportedEncodingException {
+        String encodedToken = URLEncoder.encode(token, "UTF-8");
+        return appURL + "/reservations/" + reservationId + "/consult?token=" + encodedToken;
     }
 }

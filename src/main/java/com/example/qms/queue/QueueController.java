@@ -7,6 +7,7 @@ import com.example.qms.queue.exceptions.QueueNotFoundException;
 import com.example.qms.queue.services.QueueService;
 import com.example.qms.reservation.Reservation;
 import com.example.qms.reservation.dto.ReservationDTO;
+import com.example.qms.reservation.enums.ReservationStatus;
 import com.example.qms.reservation.exceptions.ReservationNotFoundException;
 import com.example.qms.reservation.services.ReservationService;
 import com.example.qms.user.User;
@@ -117,7 +118,7 @@ public class QueueController {
             // change the prev reservation status to SERVED
             if(newPosition > 1) {
                 Reservation reservation = reservationService.getReservation(queueId, newPosition - 1);
-                reservation.setStatus(Reservation.ReservationStatus.SERVED);
+                reservation.setStatus(ReservationStatus.SERVED);
                 reservation.setServedAt(Timestamp.valueOf(LocalDateTime.now()));
                 reservationService.saveReservation(reservation);
             }
@@ -125,7 +126,7 @@ public class QueueController {
             // change the next reservation status to SERVING
             if(queueLength >= newPosition) {
                 Reservation nextReservation = reservationService.getReservation(queueId, newPosition);
-                nextReservation.setStatus(Reservation.ReservationStatus.SERVING);
+                nextReservation.setStatus(ReservationStatus.SERVING);
                 nextReservation.setCalledAt(Timestamp.valueOf(LocalDateTime.now()));
 
                 // send notification mail

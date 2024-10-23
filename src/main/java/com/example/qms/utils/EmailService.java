@@ -75,7 +75,7 @@ public class EmailService {
     @Async
     public void sendReservationEmail(
             String to,
-            String token,
+            String consultantLink,
             String queueName,
             String clientName,
             String ticketLink,
@@ -91,7 +91,7 @@ public class EmailService {
         helper.setSubject("Reservation ticket");
 
         // Generate the QR Code image
-        InputStreamSource qrCodeSource = QRCodeGenerator.generateReservationQRImage(token);
+        InputStreamSource qrCodeSource = QRCodeGenerator.generateReservationQRImage(consultantLink);
 
         // Set up Thymeleaf context
         Context context = new Context();
@@ -103,6 +103,7 @@ public class EmailService {
         context.setVariable("currentPosition", currentPosition);
         context.setVariable("estimatedDate", estimatedDate);
         context.setVariable("ticketLink", ticketLink);
+        context.setVariable("consultantLink", consultantLink);
 
         String htmlContent = templateEngine.process("reservation-email", context);
 

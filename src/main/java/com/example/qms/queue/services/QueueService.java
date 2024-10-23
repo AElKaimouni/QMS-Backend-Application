@@ -3,6 +3,7 @@ package com.example.qms.queue.services;
 import com.example.qms.queue.Queue;
 import com.example.qms.queue.QueueRepository;
 import com.example.qms.queue.dto.CreateQueueDTO;
+import com.example.qms.queue.enums.QueueStatus;
 import com.example.qms.queue.exceptions.QueueCounterLimitException;
 import com.example.qms.queue.exceptions.QueueNotFoundException;
 import com.example.qms.reservation.Reservation;
@@ -142,28 +143,28 @@ public  class QueueService implements QueueServiceInterface {
     public void delete(UUID queueId) throws QueueNotFoundException  {
         // Implementation for deleting a queue
         Queue queue = getMustExistQueue(queueId);
-        queue.setStatus(Queue.QueueStatus.DELETED);
+        queue.setStatus(QueueStatus.DELETED);
         queueRepository.save(queue);
     }
 
     public void start(UUID queueId) throws QueueNotFoundException {
         // Implementation for starting a queue
         Queue queue = getMustExistQueue(queueId);
-        queue.setStatus(Queue.QueueStatus.ACTIVE);
+        queue.setStatus(QueueStatus.ACTIVE);
         queueRepository.save(queue);
     }
 
     public void paused(UUID queueId) throws QueueNotFoundException {
         // Implementation for stopping a queue
         Queue queue = getMustExistQueue(queueId);
-        queue.setStatus(Queue.QueueStatus.PAUSED);
+        queue.setStatus(QueueStatus.PAUSED);
         queueRepository.save(queue);
     }
 
     public void close(UUID queueId) throws QueueNotFoundException {
         // Implementation for closing a queue
         Queue queue = getMustExistQueue(queueId);
-        queue.setStatus(Queue.QueueStatus.CLOSED);
+        queue.setStatus(QueueStatus.CLOSED);
         queueRepository.save(queue);
     }
 

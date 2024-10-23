@@ -160,6 +160,13 @@
             <version>5.0.5</version>
         </dependency>
 
+        <!-- JSON Valdiator -->
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20210307</version>
+        </dependency>
+
     </dependencies>
 
     <build>
