@@ -53,31 +53,8 @@ public class UserController {
             return ResponseEntity.ok("Password reset link sent to your email.");
         } catch (UserNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User with this email not found.");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error while sending reset link.");
         }
     }
-
-    @GetMapping("/reset-password")
-    public ResponseEntity<String> showResetPasswordForm(@RequestParam("token") String token) {
-        try {
-            // Now we're calling the service layer to handle user retrieval by token
-            User user = userService.findUserByResetToken(token);
-
-            // If the user is found, return the reset password form
-            return ResponseEntity.ok("<html><body><form action='/reset-password' method='post'>"
-                    + "<input type='hidden' name='token' value='" + token + "' />"
-                    + "New Password: <input type='password' name='newPassword' />"
-                    + "<button type='submit'>Reset Password</button>"
-                    + "</form></body></html>");
-        } catch (InvalidResetTokenException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid or expired token.");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error displaying reset form.");
-        }
-    }
-
-
 
     @PostMapping("/reset-password")
     public ResponseEntity<String> resetPassword(

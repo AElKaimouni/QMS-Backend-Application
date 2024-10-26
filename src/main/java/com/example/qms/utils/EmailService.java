@@ -1,12 +1,9 @@
 package com.example.qms.utils;
 
-import com.example.qms.user.User;
-import io.github.cdimascio.dotenv.Dotenv;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.InputStreamSource;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -16,14 +13,9 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 @Service
 public class EmailService {
@@ -34,11 +26,8 @@ public class EmailService {
     @Autowired
     private TemplateEngine templateEngine;
 
-    @Value("${app.address}")
-    private String appAddress;
-
-    @Value("${app.port}")
-    private String appPort;
+    @Value("${spring.app.url}")
+    private String appURL;
 
     @Value("${spring.mail.from}")
     private String emailFrom;
@@ -126,16 +115,16 @@ public class EmailService {
 
     public void sendVerificationEmail(String to, String token) {
         String subject = "Account Verification";
-        String confirmationUrl =  "http://" + appAddress + ":" + appPort + "/verify?token=" + token; // Update with your actual URL
+        String confirmationUrl =  appURL + "/verify?token=" + token; // Update with your actual URL
         String message = "Please verify your account by clicking the link: " + confirmationUrl;
         sendEmail(to, subject, message);
     }
 
-    public void sendPasswordResetEmail(User user, String resetToken) {
-        String resetUrl = "http://"+appAddress + ":" + appPort +"/reset-password?token=" + resetToken;
+    public void sendPasswordResetEmail(String email, String resetToken) {
+        String resetUrl = appURL +"/reset-password?token=" + resetToken;
         String subject = "Password Reset Request";
         String body = "To reset your password, click the following link: " + resetUrl;
-        sendEmail(user.getEmail(), subject, body);
+        sendEmail(email, subject, body);
     }
 
 }

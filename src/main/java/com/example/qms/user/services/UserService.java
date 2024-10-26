@@ -87,10 +87,10 @@ public class UserService {
 
     public void initiatePasswordReset(String email) throws UserNotFoundException {
         Optional<User> userFound = userRepository.findByEmail(email);
+
+        if (userFound.isEmpty()) throw new UserNotFoundException("No user found  ");
+
         User user = userFound.get();
-        if (user == null) {
-            throw new UserNotFoundException("No user found  ");
-        }
 
         // Generate a password reset token (could be UUID or any token generator)
         String resetToken = UUID.randomUUID().toString();
@@ -102,7 +102,7 @@ public class UserService {
         // Save the user with the new token and expiration time
         userRepository.save(user);
 
-        emailService.sendPasswordResetEmail(user, resetToken);
+        emailService.sendPasswordResetEmail(user.getEmail(), resetToken);
     }
 
     public void resetPassword(String token, String newPassword) throws InvalidResetTokenException {
