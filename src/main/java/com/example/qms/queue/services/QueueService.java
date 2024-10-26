@@ -181,4 +181,8 @@ public  class QueueService implements QueueServiceInterface {
 
         return 0;
     }
+
+    public Long getUserIdByQueueId(UUID queueId) throws QueueNotFoundException {
+        return queueRepository.findUserIdByQueueId(queueId);
+    }
 }

@@ -8,6 +8,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.sql.Timestamp;
+
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
@@ -29,6 +31,15 @@ public class User {
     )
     private String password;
 
+    private String username;
+
+    //email verification
+    private boolean isVerified = false; // Default to false
+    private String verificationToken; // To store the verification token
+
+    private String resetToken;
+
+    private Timestamp resetTokenExpiry;
 
 
 }
