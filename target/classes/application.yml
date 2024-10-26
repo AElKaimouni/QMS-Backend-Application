@@ -19,3 +19,7 @@ spring:
 logging:
   level:
     org.springframework: INFO
+
+app:
+  address: ${APP_ADDRESS}
+  port: ${APP_PORT}

@@ -25,7 +25,11 @@ public class EmailService {
     @Autowired
     private TemplateEngine templateEngine;
 
-    private String appAdresse="localhost:8080";
+    @Value("${app.address}")
+    private String appAddress;
+
+    @Value("${app.port}")
+    private String appPort;
 
     @Value("${spring.mail.from}")
     private String emailFrom;
@@ -70,13 +74,13 @@ public class EmailService {
 
     public void sendVerificationEmail(String to, String token) {
         String subject = "Account Verification";
-        String confirmationUrl =  "http://"+appAdresse+"/verify?token=" + token; // Update with your actual URL
+        String confirmationUrl =  "http://" + appAddress + ":" + appPort + "/verify?token=" + token; // Update with your actual URL
         String message = "Please verify your account by clicking the link: " + confirmationUrl;
         sendEmail(to, subject, message);
     }
 
     public void sendPasswordResetEmail(User user, String resetToken) {
-        String resetUrl = "http://"+appAdresse+"/reset-password?token=" + resetToken;
+        String resetUrl = "http://"+appAddress + ":" + appPort +"/reset-password?token=" + resetToken;
         String subject = "Password Reset Request";
         String body = "To reset your password, click the following link: " + resetUrl;
         sendEmail(user.getEmail(), subject, body);
