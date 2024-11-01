@@ -21,6 +21,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
@@ -122,6 +123,21 @@ public class UserService {
     private boolean isTokenExpired(Timestamp tokenExpiry) {
         return tokenExpiry.before(new Timestamp(System.currentTimeMillis()));
     }
+
+
+    public User processOAuth2User(OAuth2AuthenticationToken authentication) {
+        String email = authentication.getPrincipal().getAttribute("email");
+        String name = authentication.getPrincipal().getAttribute("name");
+
+        return userRepository.findByEmail(email).orElseGet(() -> {
+            User newUser = new User();
+            newUser.setEmail(email);
+            newUser.setUsername(name);
+            // Set other default properties if needed
+            return userRepository.save(newUser);
+        });
+    }
+
 
     // Method to find user by reset token
     public User findUserByResetToken(String token) throws InvalidResetTokenException {
