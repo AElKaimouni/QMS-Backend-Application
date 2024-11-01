@@ -42,6 +42,7 @@ public class SecurityConfig {
                         .requestMatchers("/error").permitAll()
                         .requestMatchers("/login", "/register", "/verify","/password-reset-request","/reset-password").permitAll()
                         .requestMatchers("/reservations/**").permitAll()
+                        .requestMatchers("/queue/*/consult").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling()

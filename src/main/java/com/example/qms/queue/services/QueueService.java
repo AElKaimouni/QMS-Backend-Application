@@ -3,12 +3,14 @@ package com.example.qms.queue.services;
 import com.example.qms.queue.Queue;
 import com.example.qms.queue.QueueRepository;
 import com.example.qms.queue.dto.CreateQueueDTO;
+import com.example.qms.queue.dto.QueueDTO;
 import com.example.qms.queue.enums.QueueStatus;
 import com.example.qms.queue.exceptions.QueueCounterLimitException;
 import com.example.qms.queue.exceptions.QueueNotFoundException;
-import com.example.qms.reservation.Reservation;
 import com.example.qms.reservation.services.ReservationService;
+import com.example.qms.workspace.exceptions.WorkspaceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.BadPaddingException;
@@ -104,26 +106,32 @@ public  class QueueService implements QueueServiceInterface {
         return  queue.get();
     }
 
-    public String createQueue(CreateQueueDTO dto,Long userId) {
-        // Implementation for creating a queue
-
+    public QueueDTO createQueue(CreateQueueDTO dto, Long userId, Long workspaceId) {
         Queue queue = new Queue(
             dto.getTitle(),
             dto.getDescription(),
             dto.getConfig(),
+            workspaceId,
             userId
         );
 
         queue.setSecret(UUID.randomUUID());
         queue.setCreatedAt(LocalDateTime.now());
-        queueRepository.save(queue);
-        return queue.getId().toString();
+
+        try {
+            Queue createdQueue = queueRepository.save(queue);
+
+            return convertToDTO(createdQueue);
+        } catch (DataIntegrityViolationException e) {
+            throw new WorkspaceNotFoundException();
+        }
     }
 
     public Integer reserve(UUID queueId) throws QueueNotFoundException {
         // Implementation for reserving a queue
         Queue queue = getMustExistQueue(queueId);
         queue.setLength(queue.getLength() + 1);
+
         queueRepository.save(queue);
         return queue.getLength();
     }
@@ -168,11 +176,13 @@ public  class QueueService implements QueueServiceInterface {
         queueRepository.save(queue);
     }
 
-    public List<Queue> getQueues(Long user_id) {
-
+    public List<QueueDTO> getQueues(long userId, long workspaceId) {
         // Fetch all reservations for the queue by its ID
-        List<Queue> queues = queueRepository.findByUserId(user_id);
-        return new ArrayList<>(queues);
+        List<Queue> queues = queueRepository.findByUserIdAndWorkspaceId(userId, workspaceId);
+
+        return queueRepository.findByUserIdAndWorkspaceId(userId, workspaceId).stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
 
     public double getAverageServingTime(UUID qid) {
@@ -184,5 +194,21 @@ public  class QueueService implements QueueServiceInterface {
 
     public Long getUserIdByQueueId(UUID queueId) throws QueueNotFoundException {
         return queueRepository.findUserIdByQueueId(queueId);
+    }
+
+    private QueueDTO convertToDTO(Queue queue) {
+        QueueDTO dto = new QueueDTO();
+
+        dto.setDescription(queue.getDescription());
+        dto.setId(queue.getId());
+        dto.setTitle(queue.getTitle());
+        dto.setUpdatedAt(queue.getUpdatedAt());
+        dto.setUserId(queue.getUserId());
+        dto.setWorkspaceId(queue.getWorkspaceId());
+        dto.setLength(queue.getLength());
+        dto.setCounter(queue.getCounter());
+        dto.setCreatedAt(queue.getCreatedAt());
+
+        return dto;
     }
 }

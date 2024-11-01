@@ -2,6 +2,7 @@ package com.example.qms.queue;
 
 import com.example.qms.queue.dto.CreateQueueDTO;
 import com.example.qms.queue.dto.QueueConsultationInfoDTO;
+import com.example.qms.queue.dto.QueueDTO;
 import com.example.qms.queue.exceptions.QueueCounterLimitException;
 import com.example.qms.queue.exceptions.QueueNotFoundException;
 import com.example.qms.queue.services.QueueService;
@@ -12,11 +13,12 @@ import com.example.qms.reservation.exceptions.ReservationNotFoundException;
 import com.example.qms.reservation.services.ReservationService;
 import com.example.qms.user.User;
 import com.example.qms.user.config.CustomUserDetails;
+import com.example.qms.user.services.UserService;
+import com.example.qms.workspace.exceptions.WorkspaceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
@@ -34,6 +36,9 @@ import java.util.UUID;
 public class QueueController {
 
     @Autowired
+    private UserService userService;
+
+    @Autowired
     private QueueService queueService;
 
     @Autowired
@@ -42,12 +47,14 @@ public class QueueController {
     @Autowired
     private ReservationService reservationService;
 
-    @GetMapping("/all")
-    public List<Queue> getAllQueues() {
-        // In your code (for example, in a controller):
-        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Long userId = userDetails.getId();  // Now you can access the user ID
-        return queueService.getQueues(userId);
+    @GetMapping("/{workspace_id}/all")
+    public List<QueueDTO> getAllQueues(
+        @PathVariable("workspace_id") long workspaceId
+    ) {
+        CustomUserDetails userDetails = userService.auth();
+        Long userId = userDetails.getId();
+
+        return queueService.getQueues(userId, workspaceId);
     }
 
     @GetMapping("/{qid}/validate/{token}")
@@ -65,12 +72,14 @@ public class QueueController {
     }
 
     @GetMapping("/{queueId}")
-    public ResponseEntity<Queue> getQueue(@PathVariable UUID queueId) {
+    public ResponseEntity<QueueDTO> getQueue(@PathVariable UUID queueId) {
         Optional<Queue> queue = queueService.getQueue(queueId);
 
         if(queue.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 
-        return ResponseEntity.ok(queue.get());
+        QueueDTO dto = new QueueDTO(queue.get());
+
+        return ResponseEntity.ok(dto);
     }
 
     @GetMapping("/{queueId}/consult")
@@ -86,22 +95,29 @@ public class QueueController {
     }
 
     @PostMapping
-    public ResponseEntity<String> createQueue(
-            @Valid @RequestBody CreateQueueDTO dto
+    public ResponseEntity<?> createQueue(
+            @Valid @RequestBody CreateQueueDTO dto,
+            @RequestParam("wid") long workspaceId
     ) {
-        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Long userId = userDetails.getId();
+        try {
+            CustomUserDetails userDetails = userService.auth();
+            long userId = userDetails.getId();
 
-        String queueId = queueService.createQueue(dto, userId);
+            QueueDTO queue = queueService.createQueue(dto, userId, workspaceId);
 
-        return ResponseEntity.ok(queueId);
+            return ResponseEntity.ok(queue);
+        } catch (WorkspaceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 
     @PostMapping("/{queueId}/next")
     public ResponseEntity<Void> next(@PathVariable UUID queueId) {
         Queue queue; int newPosition;
-        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        CustomUserDetails userDetails = userService.auth();
         Long userId = userDetails.getId();
+
         try {
 
             // Fetch the queue
@@ -182,7 +198,7 @@ public class QueueController {
 
     @DeleteMapping("/{queueId}")
     public ResponseEntity<Void> delete(@PathVariable UUID queueId) {
-        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        CustomUserDetails userDetails = userService.auth();
         Long userId = userDetails.getId();
 
         Queue queue;
@@ -204,7 +220,7 @@ public class QueueController {
 
     @PostMapping("/{queueId}/start")
     public ResponseEntity<Void> start(@PathVariable UUID queueId) {
-        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        CustomUserDetails userDetails = userService.auth();
         Long userId = userDetails.getId();
 
         Queue queue;
@@ -226,7 +242,7 @@ public class QueueController {
 
     @PostMapping("/{queueId}/pause")
     public ResponseEntity<Void> pause(@PathVariable UUID queueId) {
-        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        CustomUserDetails userDetails = userService.auth();
         Long userId = userDetails.getId();
 
         Queue queue;
@@ -248,7 +264,7 @@ public class QueueController {
 
     @PostMapping("/{queueId}/close")
     public ResponseEntity<Void> close(@PathVariable UUID queueId) {
-        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        CustomUserDetails userDetails = userService.auth();
         Long userId = userDetails.getId();
 
         Queue queue;
