@@ -3,6 +3,8 @@ package com.example.qms.queue;
 import com.example.qms.queue.config.QueueConfig;
 import com.example.qms.queue.config.QueueConfigAttributeConverter;
 import com.example.qms.queue.enums.QueueStatus;
+import com.example.qms.user.User;
+import com.example.qms.workspace.Workspace;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,6 +12,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.jdbc.Work;
 
 @Data
 @Entity
@@ -23,8 +26,11 @@ public class Queue {
     @JsonIgnore
     private UUID secret;
 
-    @Column(nullable = false)
+    @Column(name = "user_id", nullable = false)
     private Long userId;
+
+    @Column(name = "workspace_id", nullable = false)
+    private Long workspaceId;
 
     @Column(nullable = false)
     private String title;
@@ -52,10 +58,18 @@ public class Queue {
     @Column(name = "config", columnDefinition = "jsonb", length = 500)
     private QueueConfig config;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "workspace_id", insertable = false, updatable = false)
+    private Workspace workspace;  // Assuming you have a User entity
 
-    public Queue(String title, String description, QueueConfig config, Long userId) {
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", insertable = false, updatable = false)
+    private User user;
+
+    public Queue(String title, String description, QueueConfig config, Long workspaceId, Long userId) {
         this.title = title;
-        this.userId=userId;
+        this.userId = userId;
+        this.workspaceId = workspaceId;
         this.description = description;
         this.length = 0;
         this.counter = 0;

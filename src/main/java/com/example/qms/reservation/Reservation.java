@@ -5,6 +5,7 @@ import com.example.qms.queue.config.QueueConfig;
 import com.example.qms.queue.config.QueueConfigAttributeConverter;
 import com.example.qms.reservation.enums.ReservationStatus;
 import com.example.qms.reservation.info.ReservationInfoAttributeConverter;
+import com.example.qms.user.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -26,6 +27,7 @@ public class Reservation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "queue_id", nullable = false)
     private UUID queueId;
     private Integer position;
     private String token;
@@ -42,4 +44,8 @@ public class Reservation {
     private Timestamp joinAt;
     private Timestamp calledAt;
     private Timestamp servedAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "queue_id", insertable = false, updatable = false)
+    private Queue queue;
 }

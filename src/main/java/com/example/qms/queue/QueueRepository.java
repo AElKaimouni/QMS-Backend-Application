@@ -23,5 +23,5 @@ public interface QueueRepository extends JpaRepository<Queue, UUID> {
     @Query("SELECT q.userId FROM Queue q WHERE q.id = :queueId")
     Long findUserIdByQueueId(@Param("queueId") UUID queueId);
 
-    List<Queue> findByUserId(Long userId);
+    List<Queue> findByUserIdAndWorkspaceId(Long userId, Long workspaceId);
 }

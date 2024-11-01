@@ -1,5 +1,6 @@
 package com.example.qms.user.services;
 
+import com.example.qms.user.config.CustomUserDetails;
 import com.example.qms.user.dto.LoginDTO;
 import com.example.qms.user.dto.RegistrationDTO;
 import com.example.qms.user.User;
@@ -55,7 +56,11 @@ public class UserService {
     @Autowired
     private EmailService emailService;
 
-    private String appAdresse="localhost:8080";
+    public CustomUserDetails auth() {
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        return userDetails;
+    }
 
     public void registerUser(RegistrationDTO registrationDTO) throws EmailTakenExcepetion {
         // Check if email already exists

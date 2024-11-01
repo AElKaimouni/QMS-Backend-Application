@@ -41,5 +41,7 @@ public class User {
 
     private Timestamp resetTokenExpiry;
 
-
+    public User(long userId) {
+        this.setId(userId);
+    }
 }

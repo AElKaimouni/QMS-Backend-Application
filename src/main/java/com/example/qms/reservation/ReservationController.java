@@ -46,7 +46,7 @@ public class ReservationController {
     private PdfService pdfService;
 
     // generate pdf ticket
-    @GetMapping("/generate-pdf/{reservation_id}")
+    @GetMapping("/{reservation_id}/generate-pdf")
     public ResponseEntity<byte[]> generatePdf(
         @PathVariable("reservation_id") int reservationId,
         @RequestParam("token") String token

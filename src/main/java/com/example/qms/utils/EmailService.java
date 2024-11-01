@@ -113,6 +113,7 @@ public class EmailService {
         mailSender.send(message);
     }
 
+    @Async
     public void sendVerificationEmail(String to, String token) {
         String subject = "Account Verification";
         String confirmationUrl =  appURL + "/verify?token=" + token; // Update with your actual URL
@@ -120,6 +121,7 @@ public class EmailService {
         sendEmail(to, subject, message);
     }
 
+    @Async
     public void sendPasswordResetEmail(String email, String resetToken) {
         String resetUrl = appURL +"/reset-password?token=" + resetToken;
         String subject = "Password Reset Request";
