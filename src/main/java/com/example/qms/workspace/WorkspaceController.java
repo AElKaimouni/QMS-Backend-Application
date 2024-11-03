@@ -53,9 +53,10 @@ public class WorkspaceController {
         }
     }
 
-    @GetMapping("/{user_id}/all")
-    public ResponseEntity<List<WorkspaceDTO>> getAllWorkspaces(@PathVariable("user_id") long userId) {
-        List<WorkspaceDTO> workspaces = workspaceService.getAllWorkspaces(userId);
+    @GetMapping("/all")
+    public ResponseEntity<List<WorkspaceDTO>> getAllWorkspaces() {
+        CustomUserDetails userDetails = userService.auth();
+        List<WorkspaceDTO> workspaces = workspaceService.getAllWorkspaces(userDetails.getId());
         return ResponseEntity.ok(workspaces);
     }
 
