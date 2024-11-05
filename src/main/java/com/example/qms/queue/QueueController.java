@@ -11,7 +11,6 @@ import com.example.qms.reservation.dto.ReservationDTO;
 import com.example.qms.reservation.enums.ReservationStatus;
 import com.example.qms.reservation.exceptions.ReservationNotFoundException;
 import com.example.qms.reservation.services.ReservationService;
-import com.example.qms.user.User;
 import com.example.qms.user.config.CustomUserDetails;
 import com.example.qms.user.services.UserService;
 import com.example.qms.workspace.exceptions.WorkspaceNotFoundException;
@@ -22,7 +21,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
-import org.springframework.web.server.ResponseStatusException;
 import com.example.qms.utils.EmailService;
 
 import java.sql.Timestamp;

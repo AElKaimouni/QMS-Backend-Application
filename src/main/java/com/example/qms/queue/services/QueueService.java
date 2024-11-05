@@ -208,6 +208,7 @@ public  class QueueService implements QueueServiceInterface {
         dto.setLength(queue.getLength());
         dto.setCounter(queue.getCounter());
         dto.setCreatedAt(queue.getCreatedAt());
+        dto.setStatus(queue.getStatus());
 
         return dto;
     }
