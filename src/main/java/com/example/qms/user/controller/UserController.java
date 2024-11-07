@@ -74,13 +74,4 @@ public class UserController {
         }
     }
 
-    @GetMapping("/login/oauth2/success")
-    public ResponseEntity<LoginResponseDTO> oauth2LoginSuccess(OAuth2AuthenticationToken authentication) {
-        // Process the OAuth2 user
-        User user = userService.processOAuth2User(authentication);
-        String token = jwtTokenProvider.generateToken(authentication);
-
-        return ResponseEntity.ok(new LoginResponseDTO(token));
-    }
-
 }

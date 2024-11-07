@@ -129,34 +129,4 @@ public class UserService {
         return tokenExpiry.before(new Timestamp(System.currentTimeMillis()));
     }
 
-
-    public User processOAuth2User(OAuth2AuthenticationToken authentication) {
-        String email = authentication.getPrincipal().getAttribute("email");
-        String name = authentication.getPrincipal().getAttribute("name");
-
-        return userRepository.findByEmail(email).orElseGet(() -> {
-            User newUser = new User();
-            newUser.setEmail(email);
-            newUser.setUsername(name);
-            // Set other default properties if needed
-            return userRepository.save(newUser);
-        });
-    }
-
-
-    // Method to find user by reset token
-    public User findUserByResetToken(String token) throws InvalidResetTokenException {
-        User user = userRepository.findByResetToken(token);
-        // Convert Timestamp to LocalDateTime
-        LocalDateTime tokenExpiryDateTime = user.getResetTokenExpiry().toLocalDateTime();
-
-        // Check if the token has expired
-        if (tokenExpiryDateTime.isBefore(LocalDateTime.now())) {
-            throw new InvalidResetTokenException("Token has expired");
-        }
-
-        return user;
-    }
-
-
 }

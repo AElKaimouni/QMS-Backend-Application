@@ -111,6 +111,14 @@ public class QueueController {
         }
     }
 
+    @PutMapping("/{queueId}")
+    public ResponseEntity<QueueDTO> updateQueue(
+            @PathVariable UUID queueId,
+            @RequestBody CreateQueueDTO dto) {
+        QueueDTO updatedQueue = queueService.updateQueue(queueId, dto);
+        return ResponseEntity.ok(updatedQueue);
+    }
+
     @PostMapping("/{queueId}/next")
     public ResponseEntity<Void> next(@PathVariable UUID queueId) {
         Queue queue; int newPosition;
