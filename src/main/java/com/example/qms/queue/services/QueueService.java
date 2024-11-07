@@ -4,14 +4,20 @@ import com.example.qms.queue.Queue;
 import com.example.qms.queue.QueueRepository;
 import com.example.qms.queue.dto.CreateQueueDTO;
 import com.example.qms.queue.dto.QueueDTO;
+import com.example.qms.queue.dto.UpdateQueueDTO;
 import com.example.qms.queue.enums.QueueStatus;
 import com.example.qms.queue.exceptions.QueueCounterLimitException;
 import com.example.qms.queue.exceptions.QueueNotFoundException;
+import com.example.qms.queue.exceptions.QueueOwnershipException;
 import com.example.qms.reservation.services.ReservationService;
+import com.example.qms.user.config.CustomUserDetails;
+import com.example.qms.user.services.UserService;
 import com.example.qms.workspace.exceptions.WorkspaceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -29,6 +35,10 @@ public  class QueueService implements QueueServiceInterface {
     ReservationService reservationService;
 
     private final QueueRepository queueRepository;
+
+    @Autowired
+    UserService userService;
+
 
     public QueueService(QueueRepository queueRepository) {
         this.queueRepository = queueRepository;
@@ -127,6 +137,27 @@ public  class QueueService implements QueueServiceInterface {
         }
     }
 
+
+
+    public QueueDTO updateQueue(UUID queueId, CreateQueueDTO dto) {
+        // Verify that the current user is the owner of the queue
+        Queue queue = verifyOwnership(queueId);
+
+        // Update only the fields present in UpdateQueueDTO
+        if (dto.getTitle() != null) queue.setTitle(dto.getTitle());
+        if (dto.getDescription() != null) queue.setDescription(dto.getDescription());
+        if (dto.getConfig() != null) queue.setConfig(dto.getConfig());
+
+        queue.setUpdatedAt(LocalDateTime.now());
+
+        try {
+            Queue updatedQueue = queueRepository.save(queue);
+            return convertToDTO(updatedQueue);
+        } catch (DataIntegrityViolationException e) {
+            throw new QueueNotFoundException();
+        }
+    }
+
     public Integer reserve(UUID queueId) throws QueueNotFoundException {
         // Implementation for reserving a queue
         Queue queue = getMustExistQueue(queueId);
@@ -211,5 +242,20 @@ public  class QueueService implements QueueServiceInterface {
         dto.setStatus(queue.getStatus());
 
         return dto;
+    }
+
+
+    public Queue verifyOwnership(UUID queueId) {
+        // Authenticate the user
+        CustomUserDetails userDetails = userService.auth();
+        Long userId = userDetails.getId();
+
+        // Get the queue and check if the authenticated user is the owner
+        Queue queue = getMustExistQueue(queueId);
+        if (!userId.equals(queue.getUserId())) {
+            throw new QueueOwnershipException("User is not the owner of the queue");
+        }
+
+        return queue;
     }
 }

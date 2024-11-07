@@ -44,4 +44,6 @@ public class User {
     public User(long userId) {
         this.setId(userId);
     }
+
+
 }

@@ -2,6 +2,7 @@ package com.example.qms;
 
 import com.example.qms.user.config.JwtAuthenticationEntryPoint;
 import com.example.qms.user.config.JwtAuthenticationFilter;
+import com.example.qms.user.config.OAuth2AuthenticationSuccessHandler;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -16,8 +17,12 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.stereotype.Component;
 
@@ -27,31 +32,39 @@ import org.springframework.stereotype.Component;
 
 public class SecurityConfig {
 
-    private UserDetailsService userDetailsService;
-    private JwtAuthenticationEntryPoint authenticationEntryPoint;
-    private JwtAuthenticationFilter authenticationFilter;
+    private final UserDetailsService userDetailsService;
+    private final JwtAuthenticationEntryPoint authenticationEntryPoint;
+    private final JwtAuthenticationFilter authenticationFilter;
+    private final OAuth2UserService oAuth2UserService;
+
+    private final OAuth2AuthenticationSuccessHandler oauth2AuthenticationSuccessHandler;
+
+
 
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-
-        return http
-                .cors().and()
+        http.cors().and()
                 .csrf().disable()
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/error").permitAll()
-                        .requestMatchers("/login", "/register", "/verify","/password-reset-request","/reset-password").permitAll()
+                        .requestMatchers("/login/**", "/register", "/verify", "/password-reset-request", "/reset-password", "/oauth2/**").permitAll()
                         .requestMatchers("/reservations/**").permitAll()
                         .requestMatchers("/queue/*/consult").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers("/queue").authenticated()
                         .anyRequest().authenticated())
                 .exceptionHandling()
                 .authenticationEntryPoint(authenticationEntryPoint) // Use the custom entry point
                 .and()
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .userDetailsService(userDetailsService)
-                .build();
+                .oauth2Login(oauth2 -> oauth2
+                        .userInfoEndpoint(userInfo -> userInfo.userService(oAuth2UserService))
+                        .successHandler(oauth2AuthenticationSuccessHandler)) // Set the custom success handler
+                .userDetailsService(userDetailsService);
+
+        return http.build();
     }
 
     @Bean
@@ -62,4 +75,5 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
     }
+
 }
