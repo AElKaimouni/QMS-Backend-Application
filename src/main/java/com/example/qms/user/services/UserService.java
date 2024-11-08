@@ -5,6 +5,7 @@ import com.example.qms.user.dto.LoginDTO;
 import com.example.qms.user.dto.RegistrationDTO;
 import com.example.qms.user.User;
 import com.example.qms.user.UserRepository;
+import com.example.qms.user.dto.UserDTO;
 import com.example.qms.user.exceptions.EmailTakenExcepetion;
 import com.example.qms.user.exceptions.InvalidResetTokenException;
 import com.example.qms.user.exceptions.UserNotFoundException;
@@ -126,6 +127,23 @@ public class UserService {
 
     private boolean isTokenExpired(Timestamp tokenExpiry) {
         return tokenExpiry.before(new Timestamp(System.currentTimeMillis()));
+    }
+
+    public User findUser(long id) {
+        User user = userRepository.getUserByid(id);
+
+        return user;
+    }
+
+    public UserDTO mapToDto(User user) {
+        UserDTO dto = new UserDTO();
+
+        dto.setId(user.getId());
+        dto.setUsername(user.getUsername());
+        dto.setVerified(user.isVerified());
+        dto.setEmail(user.getEmail());
+
+        return dto;
     }
 
 }

@@ -2,6 +2,7 @@ package com.example.qms.user.controller;
 
 import com.example.qms.user.User;
 import com.example.qms.user.UserRepository;
+import com.example.qms.user.config.CustomUserDetails;
 import com.example.qms.user.dto.*;
 import com.example.qms.user.exceptions.*;
 
@@ -72,6 +73,14 @@ public class UserController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error while resetting password.");
         }
+    }
+
+    @GetMapping("/auth")
+    public ResponseEntity<UserDTO> auth() {
+        CustomUserDetails userDetails = userService.auth();
+        User user = userService.findUser(userDetails.getId());
+
+        return ResponseEntity.ok(userService.mapToDto(user));
     }
 
 }
