@@ -40,9 +40,9 @@ public class QMSApplication {
         if(smtp_auth != null) System.setProperty("spring.mail.properties.mail.smtp.auth", smtp_auth);
         if(smtp_starttls_enabled != null) System.setProperty("spring.mail.properties.mail.smtp.starttls.enable", smtp_starttls_enabled);
 
-        System.setProperty("spring.security.oauth2.client.registration.google.client-id", Objects.requireNonNull(dotenv.get("GOOGLE_CLIENT_ID")));
-        System.setProperty("spring.security.oauth2.client.registration.google.client-secret", Objects.requireNonNull(dotenv.get("GOOGLE_CLIENT_SECRET")));
-        System.setProperty("spring.security.oauth2.client.registration.google.redirect-uri",Objects.requireNonNull(dotenv.get("GOOGLE_REDIRECT_URI")));
+        //System.setProperty("spring.security.oauth2.client.registration.google.client-id", Objects.requireNonNull(dotenv.get("GOOGLE_CLIENT_ID")));
+//        System.setProperty("spring.security.oauth2.client.registration.google.client-secret", Objects.requireNonNull(dotenv.get("GOOGLE_CLIENT_SECRET")));
+//        System.setProperty("spring.security.oauth2.client.registration.google.redirect-uri",Objects.requireNonNull(dotenv.get("GOOGLE_REDIRECT_URI")));
         //System.setProperty("spring.security.oauth2.client.registration.google.redirect-scope",Objects.requireNonNull(dotenv.get("GOOGLE_SCOPE")));
         System.setProperty("logging.level.org.springframework.security","DEBUG");
         SpringApplication.run(QMSApplication.class, args);

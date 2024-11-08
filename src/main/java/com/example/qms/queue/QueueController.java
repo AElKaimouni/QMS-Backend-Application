@@ -113,6 +113,7 @@ public class QueueController {
     public ResponseEntity<QueueDTO> updateQueue(
             @PathVariable UUID queueId,
             @RequestBody CreateQueueDTO dto) {
+
         QueueDTO updatedQueue = queueService.updateQueue(queueId, dto);
         return ResponseEntity.ok(updatedQueue);
     }
