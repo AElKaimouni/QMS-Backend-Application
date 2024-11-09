@@ -64,8 +64,9 @@ public class UserController {
     @PostMapping("/reset-password")
     public ResponseEntity<String> resetPassword(
             @RequestParam("token") String token,
-            @RequestParam("newPassword") String newPassword) {
+            @Validated @RequestBody PasswordResetDTO PasswordResetDTO) {
         try {
+            String newPassword =PasswordResetDTO.getNewPassword();
             userService.resetPassword(token, newPassword);
             return ResponseEntity.ok("Password reset successful.");
         } catch (InvalidResetTokenException e) {
@@ -74,6 +75,8 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error while resetting password.");
         }
     }
+
+
 
     @GetMapping("/auth")
     public ResponseEntity<UserDTO> auth() {

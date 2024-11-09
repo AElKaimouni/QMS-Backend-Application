@@ -20,12 +20,39 @@ public class QueueSummaryController {
     private  QueueSummaryService queueSummaryService;
 
     // Endpoint to get aggregated metrics for a specific queue
-    @PostMapping("/{queueId}/metrics")
+    @PostMapping("/{queueId}/AllMetrics")
     public ResponseEntity<QueueMetricsDTO> getQueueMetrics(@PathVariable UUID queueId,
                                                            @RequestBody DateRangeDTO dateRange) {
         queueService.verifyOwnership(queueId);
         QueueMetricsDTO metrics = queueSummaryService.getQueueMetrics(queueId, dateRange.getStartDate(), dateRange.getEndDate());
         return ResponseEntity.ok(metrics);
+    }
+
+    // Endpoint to get visitor count for a specific queue
+    @PostMapping("/{queueId}/metrics/visitors-count")
+    public ResponseEntity<Map<String, Long>> getVisitorsCount(@PathVariable UUID queueId,
+                                                                 @RequestBody DateRangeDTO dateRange) {
+        queueService.verifyOwnership(queueId);
+        QueueMetricsDTO metrics = queueSummaryService.getQueueMetrics(queueId, dateRange.getStartDate(), dateRange.getEndDate());
+        return ResponseEntity.ok(Map.of("visitorsCount", metrics.getTotalVisitors()));
+    }
+
+    // Endpoint to get average wait time for a specific queue
+    @PostMapping("/{queueId}/metrics/average-wait-time")
+    public ResponseEntity<Map<String, Double>> getAverageWaitTime(@PathVariable UUID queueId,
+                                                                  @RequestBody DateRangeDTO dateRange) {
+        queueService.verifyOwnership(queueId);
+        QueueMetricsDTO metrics = queueSummaryService.getQueueMetrics(queueId, dateRange.getStartDate(), dateRange.getEndDate());
+        return ResponseEntity.ok(Map.of("averageWaitTime", metrics.getAverageWaitTime()));
+    }
+
+    // Endpoint to get average serve time for a specific queue
+    @PostMapping("/{queueId}/metrics/average-serve-time")
+    public ResponseEntity<Map<String, Double>> getAverageServeTime(@PathVariable UUID queueId,
+                                                                   @RequestBody DateRangeDTO dateRange) {
+        queueService.verifyOwnership(queueId);
+        QueueMetricsDTO metrics = queueSummaryService.getQueueMetrics(queueId, dateRange.getStartDate(), dateRange.getEndDate());
+        return ResponseEntity.ok(Map.of("averageServeTime", metrics.getAverageServeTime()));
     }
 
     // Endpoint to get aggregated metrics for a specific workspace
@@ -35,5 +62,30 @@ public class QueueSummaryController {
         QueueMetricsDTO workspaceMetrics = queueSummaryService.getWorkspaceMetrics(workspaceId, dateRange.getStartDate(), dateRange.getEndDate());
         return ResponseEntity.ok(workspaceMetrics);
     }
+
+    // Endpoint to get visitor count for a specific workspace
+    @PostMapping("/workspace/{workspaceId}/metrics/visitors-count")
+    public ResponseEntity<Map<String, Long>> getWorkspaceVisitorsCount(@PathVariable Long workspaceId,
+                                                                          @RequestBody DateRangeDTO dateRange) {
+        QueueMetricsDTO metrics = queueSummaryService.getWorkspaceMetrics(workspaceId, dateRange.getStartDate(), dateRange.getEndDate());
+        return ResponseEntity.ok(Map.of("visitorsCount", metrics.getTotalVisitors()));
+    }
+
+    // Endpoint to get average wait time for a specific workspace
+    @PostMapping("/workspace/{workspaceId}/metrics/average-wait-time")
+    public ResponseEntity<Map<String, Double>> getWorkspaceAverageWaitTime(@PathVariable Long workspaceId,
+                                                                           @RequestBody DateRangeDTO dateRange) {
+        QueueMetricsDTO metrics = queueSummaryService.getWorkspaceMetrics(workspaceId, dateRange.getStartDate(), dateRange.getEndDate());
+        return ResponseEntity.ok(Map.of("averageWaitTime", metrics.getAverageWaitTime()));
+    }
+
+    // Endpoint to get average serve time for a specific workspace
+    @PostMapping("/workspace/{workspaceId}/metrics/average-serve-time")
+    public ResponseEntity<Map<String, Double>> getWorkspaceAverageServeTime(@PathVariable Long workspaceId,
+                                                                            @RequestBody DateRangeDTO dateRange) {
+        QueueMetricsDTO metrics = queueSummaryService.getWorkspaceMetrics(workspaceId, dateRange.getStartDate(), dateRange.getEndDate());
+        return ResponseEntity.ok(Map.of("averageServeTime", metrics.getAverageServeTime()));
+    }
+
 
 }
