@@ -60,6 +60,7 @@ public class ReservationController {
         Queue queue = queueService.getMustExistQueue(reservation.get().getQueueId());
         String qrCode = reservationService.generateReservationConsultantURL(
             reservation.get().getId(),
+            queue.getId(),
             reservation.get().getToken()
         );
 
@@ -98,6 +99,7 @@ public class ReservationController {
             );
             String consultantLink = reservationService.generateReservationConsultantURL(
                 createdReservation.getId(),
+                queue.getId(),
                 createdReservation.getToken()
             );
 
