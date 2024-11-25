@@ -158,6 +158,6 @@ public class ReservationService {
     public String generateReservationConsultantURL(long reservationId, UUID queueID, String token) throws UnsupportedEncodingException {
         String encodedToken = URLEncoder.encode(token, "UTF-8");
 
-        return appURL + queueID.toString() + "/reservations/" + reservationId + "?token=" + encodedToken;
+        return appURL + "/" + queueID.toString() + "/reservations/" + reservationId + "?token=" + encodedToken;
     }
 }
