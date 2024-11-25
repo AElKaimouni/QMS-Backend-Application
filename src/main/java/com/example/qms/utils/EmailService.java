@@ -87,7 +87,8 @@ public class EmailService {
 
         helper.setTo(to);
         helper.setSubject("Reservation ticket");
-
+        helper.setFrom(this.emailFrom);
+        
         // Generate the QR Code image
         InputStreamSource qrCodeSource = QRCodeGenerator.generateReservationQRImage(consultantLink);
 
