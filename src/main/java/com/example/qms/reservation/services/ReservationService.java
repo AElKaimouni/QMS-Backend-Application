@@ -155,8 +155,9 @@ public class ReservationService {
         return appURL + "/reservations/generate-pdf/" + reservationId + "?token=" + encodedToken;
     }
 
-    public String generateReservationConsultantURL(long reservationId, String token) throws UnsupportedEncodingException {
+    public String generateReservationConsultantURL(long reservationId, UUID queueID, String token) throws UnsupportedEncodingException {
         String encodedToken = URLEncoder.encode(token, "UTF-8");
-        return appURL + "/reservations/" + reservationId + "/consult?token=" + encodedToken;
+
+        return appURL + queueID.toString() + "/reservations/" + reservationId + "?token=" + encodedToken;
     }
 }
