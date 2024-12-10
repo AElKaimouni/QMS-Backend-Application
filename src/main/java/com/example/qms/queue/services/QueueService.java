@@ -31,9 +31,6 @@ import java.util.stream.Collectors;
 
 @Service
 public  class QueueService implements QueueServiceInterface {
-    @Autowired
-    ReservationService reservationService;
-
     private final QueueRepository queueRepository;
 
     @Autowired
@@ -257,5 +254,15 @@ public  class QueueService implements QueueServiceInterface {
         }
 
         return queue;
+    }
+
+    public long getQueuesCount(long user_id, QueueStatus status) {
+        if(status == null) return queueRepository.countTotalQueuesByUserId(user_id);
+
+        return  queueRepository.countQueuesByUserIdAndStatus(user_id, status);
+    }
+
+    public long getQueuesCount(long user_id) {
+        return getQueuesCount(user_id, null);
     }
 }

@@ -5,6 +5,7 @@ import com.example.qms.queue.dto.QueueConsultationInfoDTO;
 import com.example.qms.queue.dto.QueueDTO;
 import com.example.qms.queue.exceptions.QueueCounterLimitException;
 import com.example.qms.queue.exceptions.QueueNotFoundException;
+import com.example.qms.queue.services.QueuePerformanceService;
 import com.example.qms.queue.services.QueueService;
 import com.example.qms.reservation.Reservation;
 import com.example.qms.reservation.dto.ReservationDTO;
@@ -35,6 +36,9 @@ public class QueueController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private QueuePerformanceService queuePerformanceService;
 
     @Autowired
     private QueueService queueService;
@@ -154,9 +158,11 @@ public class QueueController {
             // change the prev reservation status to SERVED
             if(newPosition > 1) {
                 Reservation reservation = reservationService.getReservation(queueId, newPosition - 1);
-                reservation.setStatus(ReservationStatus.SERVED);
-                reservation.setServedAt(Timestamp.valueOf(LocalDateTime.now()));
-                reservationService.saveReservation(reservation);
+                if(reservation.getStatus() == ReservationStatus.SERVING) {
+                    reservation.setStatus(ReservationStatus.SERVED);
+                    reservation.setServedAt(Timestamp.valueOf(LocalDateTime.now()));
+                    reservationService.saveReservation(reservation);
+                }
             }
 
             // change the next reservation status to SERVING
@@ -289,6 +295,5 @@ public class QueueController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
-
 
 }

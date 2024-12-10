@@ -24,6 +24,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -67,6 +68,11 @@ public class ReservationService {
     public Optional<Reservation> getReservation(long id) {
 
         return reservationRepository.findById(id);
+    }
+
+    public List<ReservationDTO> getRecentReservationsForUser(long user_id, int limit) {
+        return reservationRepository.findLastNReservationsByUserId(user_id, limit)
+                .stream().map(this::mapToDTO).collect(Collectors.toList());
     }
 
     // Read all reservations
@@ -160,4 +166,54 @@ public class ReservationService {
 
         return appURL + "/" + queueID.toString() + "/reservations/" + reservationId + "?token=" + encodedToken;
     }
+
+    // Method to count reservations by userId, status, and specific date range
+    public long countReservations(Long userId, ReservationStatus status, Timestamp startDate, Timestamp endDate) {
+        if (status != null) {
+            return reservationRepository.countReservationsByUserIdAndStatusAndDateRange(userId, status, startDate, endDate);
+        } else {
+            return reservationRepository.countReservationsByUserIdAndDateRange(userId, startDate, endDate);
+        }
+    }
+
+    public long countReservations(Long userId, Timestamp startDate, Timestamp endDate) {
+        return countReservations(userId, null, startDate, endDate);
+    }
+
+    public long getTodayReservationsCount(Long userId, ReservationStatus status) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime startOfDay = now.toLocalDate().atStartOfDay();
+        LocalDateTime endOfDay = now.toLocalDate().atTime(LocalTime.MAX);
+
+        return countReservations(userId, status, Timestamp.valueOf(startOfDay), Timestamp.valueOf(endOfDay));
+    }
+
+    public long getTodayReservationsCount(Long userId) {
+        return getTodayReservationsCount(userId, null);
+    }
+
+    public long getYesterdayReservationsCount(Long userId, ReservationStatus status) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime startOfYesterday = now.minusDays(1).toLocalDate().atStartOfDay();
+        LocalDateTime endOfYesterday = now.minusDays(1).toLocalDate().atTime(LocalTime.MAX);
+
+        return countReservations(userId, status, Timestamp.valueOf(startOfYesterday), Timestamp.valueOf(endOfYesterday));
+    }
+
+    public long getYesterdayReservationsCount(Long userId) {
+        return getYesterdayReservationsCount(userId, null);
+    }
+
+    public long getLastHourReservationsCount(Long userId, ReservationStatus status) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime startOfLastHour = now.minusHours(1);
+        LocalDateTime endOfLastHour = now;
+
+        return countReservations(userId, status, Timestamp.valueOf(startOfLastHour), Timestamp.valueOf(endOfLastHour));
+    }
+
+    public long getLastHourReservationsCount(Long userId) {
+        return getLastHourReservationsCount(userId, null);
+    }
+
 }
