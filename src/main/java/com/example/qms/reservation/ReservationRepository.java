@@ -14,6 +14,16 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
+    // Count reservations by userId, queueId, status, and date range
+    @Query("SELECT COUNT(r) FROM Reservation r " +
+            "WHERE r.queue.id = :queueId AND r.queue.userId = :userId AND r.status = :status " +
+            "AND r.joinAt BETWEEN :startDate AND :endDate")
+    long countReservationsByQueueAndUserAndStatus(
+            @Param("queueId") UUID queueId,
+            @Param("userId") Long userId,
+            @Param("status") ReservationStatus status,
+            @Param("startDate") Timestamp startDate,
+            @Param("endDate") Timestamp endDate);
 
     // Count reservations by userId, status, and date range
     @Query("SELECT COUNT(r) FROM Reservation r WHERE r.queue.userId = :userId AND r.status = :status AND r.joinAt BETWEEN :startDate AND :endDate")

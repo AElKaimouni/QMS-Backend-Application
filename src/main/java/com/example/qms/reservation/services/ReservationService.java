@@ -176,6 +176,12 @@ public class ReservationService {
         }
     }
 
+    public long countServedReservationsByQueue(Long userId,UUID queue,Timestamp startDate,Timestamp endDate){
+        ReservationStatus status =ReservationStatus.SERVED;
+        return reservationRepository.countReservationsByQueueAndUserAndStatus(queue,userId,status,startDate,endDate);
+
+    }
+
     public long countReservations(Long userId, Timestamp startDate, Timestamp endDate) {
         return countReservations(userId, null, startDate, endDate);
     }
@@ -198,6 +204,21 @@ public class ReservationService {
         LocalDateTime endOfYesterday = now.minusDays(1).toLocalDate().atTime(LocalTime.MAX);
 
         return countReservations(userId, status, Timestamp.valueOf(startOfYesterday), Timestamp.valueOf(endOfYesterday));
+    }
+
+    public long getTodayReservationsServedByQueue(long userId, UUID queueId) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime startOfToday = now.toLocalDate().atStartOfDay();
+        LocalDateTime endOfToday = now.toLocalDate().atTime(LocalTime.MAX);
+
+        return countServedReservationsByQueue(userId,queueId,Timestamp.valueOf(startOfToday), Timestamp.valueOf(endOfToday));
+    }
+    public long getLastHourReservationsServedByQueue(long userId, UUID queueId) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime startOfLastHour = now.minusHours(1);
+        LocalDateTime endOfLastHour = now;
+
+        return countServedReservationsByQueue(userId,queueId,Timestamp.valueOf(startOfLastHour), Timestamp.valueOf(endOfLastHour));
     }
 
     public long getYesterdayReservationsCount(Long userId) {

@@ -43,7 +43,8 @@ public interface QueueRepository extends JpaRepository<Queue, UUID> {
     @Query(value = "SELECT \n" +
             "\tq.id, q.title, q.status, q.total_reservations, \n" +
             "\tCOUNT(r2.*) AS served_reservations ,\n" +
-            "\tAVG(EXTRACT(EPOCH FROM (r2.served_at - r2.join_at))) as avg_total_time\n" +
+            "\tAVG(EXTRACT(EPOCH FROM (r2.served_at - r2.join_at))) as avg_total_time,\n" +
+            "\tAVG(EXTRACT(EPOCH FROM (r2.served_at - r2.called_at))) as avg_served_time\n" +
             "FROM (\n" +
             "\tSELECT \n" +
             "\t\tq.id, q.title, q.status,\n" +
@@ -63,6 +64,39 @@ public interface QueueRepository extends JpaRepository<Queue, UUID> {
             "ORDER BY total_reservations DESC LIMIT 5", nativeQuery = true)
     List<Object[]> getQueuesDailyPerformance(@Param("uid") long user_id);
 
+    @Query(value = "SELECT DATE(r2.join_at) AS day, " +
+            "q.id, COUNT(r1.*) AS total_reservations, " +
+            "COUNT(r2.*) AS served_reservations, " +
+            "AVG(EXTRACT(EPOCH FROM (r2.served_at - r2.join_at))) AS avg_total_time, " +
+            "AVG(EXTRACT(EPOCH FROM (r2.served_at - r2.called_at))) AS avg_served_time " +
+            "FROM queue q " +
+            "LEFT JOIN reservation r1 ON r1.queue_id = q.id " +
+            "AND r1.join_at >= CURRENT_DATE - INTERVAL '1 MONTH' " +
+            "LEFT JOIN reservation r2 ON r2.queue_id = q.id " +
+            "AND r2.status = 'SERVED' " +
+            "AND r2.join_at >= CURRENT_DATE - INTERVAL '1 MONTH' " +
+            "WHERE q.user_id = :userId AND q.id = :queueId " +
+            "GROUP BY DATE(r2.join_at), q.id " +
+            "ORDER BY day ASC", nativeQuery = true)
+    List<Object[]> getQueueMonthlyPerformance(@Param("queueId") UUID queueId, @Param("userId") long userId);
+
+    @Query(value = "SELECT DATE(r2.join_at) AS day, " +
+            "q.id, COUNT(r1.*) AS total_reservations, " +
+            "COUNT(r2.*) AS served_reservations, " +
+            "AVG(EXTRACT(EPOCH FROM (r2.served_at - r2.join_at))) AS avg_total_time, " +
+            "AVG(EXTRACT(EPOCH FROM (r2.served_at - r2.called_at))) AS avg_served_time " +
+            "FROM queue q " +
+            "LEFT JOIN reservation r1 ON r1.queue_id = q.id " +
+            "AND r1.join_at >= CURRENT_DATE - INTERVAL '7 days' " +
+            "LEFT JOIN reservation r2 ON r2.queue_id = q.id " +
+            "AND r2.status = 'SERVED' " +
+            "AND r2.join_at >= CURRENT_DATE - INTERVAL '7 days' " +
+            "WHERE q.user_id = :userId AND q.id = :queueId " +
+            "GROUP BY DATE(r2.join_at), q.id " +
+            "ORDER BY day ASC", nativeQuery = true)
+    List<Object[]> getQueueWeeklyPerformance(@Param("queueId") UUID queueId, @Param("userId") long userId);
+
+
     @Query("SELECT q.userId FROM Queue q WHERE q.id = :queueId")
     Long findUserIdByQueueId(@Param("queueId") UUID queueId);
 
@@ -73,4 +107,13 @@ public interface QueueRepository extends JpaRepository<Queue, UUID> {
 
     @Query("SELECT COUNT(q) FROM Queue q WHERE q.userId = :userId AND q.status = :status")
     long countQueuesByUserIdAndStatus(@Param("userId") Long userId, @Param("status") QueueStatus status);
+
+    @Query(value = """
+    SELECT COUNT(*) 
+    FROM reservation r
+    WHERE r.queue_id = :queueId
+    AND r.join_at >= NOW() - INTERVAL '1 hour'
+    """, nativeQuery = true)
+    int getLastHourQueueLength(@Param("queueId") UUID queueId);
+
 }

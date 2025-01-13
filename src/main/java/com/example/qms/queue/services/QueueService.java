@@ -4,6 +4,7 @@ import com.example.qms.queue.Queue;
 import com.example.qms.queue.QueueRepository;
 import com.example.qms.queue.dto.CreateQueueDTO;
 import com.example.qms.queue.dto.QueueDTO;
+import com.example.qms.queue.dto.QueueDetailsDTO;
 import com.example.qms.queue.dto.UpdateQueueDTO;
 import com.example.qms.queue.enums.QueueStatus;
 import com.example.qms.queue.exceptions.QueueCounterLimitException;
@@ -12,6 +13,7 @@ import com.example.qms.queue.exceptions.QueueOwnershipException;
 import com.example.qms.reservation.services.ReservationService;
 import com.example.qms.user.config.CustomUserDetails;
 import com.example.qms.user.services.UserService;
+import com.example.qms.workspace.Workspace;
 import com.example.qms.workspace.exceptions.WorkspaceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -103,6 +105,16 @@ public  class QueueService implements QueueServiceInterface {
         // Implementation for getting a queue
         return queueRepository.findById(queueId);
     }
+
+    public int getQueueLength(UUID queueId) {
+        Queue queue = getMustExistQueue(queueId);
+        return queue.getLength();
+    }
+    public int getQueueLengthLastHour(UUID queueId){
+        return queueRepository.getLastHourQueueLength(queueId);
+
+    }
+
 
     public Queue getMustExistQueue(UUID queueId) throws QueueNotFoundException {
         // Implementation for getting a queue
@@ -264,5 +276,18 @@ public  class QueueService implements QueueServiceInterface {
 
     public long getQueuesCount(long user_id) {
         return getQueuesCount(user_id, null);
+    }
+
+    public QueueDetailsDTO getQueueDetails(UUID queueId) {
+
+        Queue queue = getMustExistQueue(queueId);
+        QueueDetailsDTO dto = new QueueDetailsDTO();
+        dto.setId(queue.getId());
+        dto.setTitle(queue.getTitle());
+        dto.setDescription(queue.getDescription());
+        Workspace workspace = queue.getWorkspace();
+        dto.setWorkspaceName(workspace.getTitle());
+        dto.setStatus(queue.getStatus());
+        return dto;
     }
 }

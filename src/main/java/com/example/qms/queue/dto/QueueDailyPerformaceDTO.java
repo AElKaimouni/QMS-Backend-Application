@@ -17,4 +17,6 @@ public class QueueDailyPerformaceDTO {
     long total_reservations;
     long served_reservations;
     float avg_total_time;
+    float avg_served_time;
+    float avg_wait_time;
 }

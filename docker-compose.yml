@@ -1,5 +1,5 @@
 services:
-  app:
+  backend-app:
     build:
       context: .
       dockerfile: Dockerfile
@@ -11,3 +11,29 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
     env_file:
       - .env
+  qms-nextjs:
+    build:
+      context: ../QMS-NextJS
+      dockerfile: Dockerfile
+    container_name: qms-nextjs
+    environment:
+      - NODE_ENV=production
+    env_file:
+      - ../QMS-NextJS/.env
+
+    volumes:
+      - ./:/usr/src/app
+    ports:
+      - "3000:3000"
+
+  nginx:
+    image: nginx:1.21.6-alpine
+    container_name: nginx
+    volumes:
+      - ../QMS-NextJS/nginx.conf:/etc/nginx/nginx.conf
+      - ../QMS-NextJS/landing-page:/var/www/quickq.ma
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - qms-nextjs
